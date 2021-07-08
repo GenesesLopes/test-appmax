@@ -1,7 +1,6 @@
 FROM php:8.0-fpm
 
 ## Instalação de composer
-# RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 COPY --from=composer:2.1.3 /usr/bin/composer /usr/bin/composer
 
 ## Instalação de programas auxiliares
@@ -37,7 +36,7 @@ RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSI
 
 WORKDIR /var/www
 
-RUN npm config set cache /var/www/.npm-cache --global && npm install yarn -g
+RUN npm config set cache /var/www/.npm-cache --global
 
 RUN rm -rf /var/www/html && \
     usermod -u 1000 www-data && \
