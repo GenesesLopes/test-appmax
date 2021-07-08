@@ -34,6 +34,9 @@ RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSI
     && tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
     && rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
 
+## Escondendo versão do php
+RUN sed -i "s/expose_php = On/expose_php = Off/g" /usr/local/etc/php/php.ini-development  > /usr/local/etc/php/php.ini
+
 WORKDIR /var/www
 
 RUN npm config set cache /var/www/.npm-cache --global
