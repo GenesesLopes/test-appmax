@@ -1,0 +1,42 @@
+version: '3.5'
+
+services:
+
+    api-appmax:
+        build: ./app
+        container_name: api-appmax
+        ports: 
+            - "3000:3000"
+        volumes: 
+            - ../.:/var/www
+        tty: true
+        entrypoint: dockerize -wait tcp://db-appmax:3306 -timeout 40s .docker/app/entrypoint.sh
+        depends_on:
+            - db-appmax
+    
+    nginx-appmax:
+        build: ./nginx
+        container_name: nginx-appmax
+        restart: always
+        tty: true
+        ports:
+            - "80:80"
+            - "8000:8000"
+        volumes:
+            - ../.:/var/www
+        depends_on:
+            - api-appmax
+    
+    db-appmax:
+        build: ./mysql
+        command: --innodb-use-native-aio=0
+        container_name: db-appmax
+        restart: always
+        tty: true
+        ports:
+            - "3306:3306"
+        volumes:
+            - ./mysql/data:/var/lib/mysql
+            - ./mysql/entrypoint:/docker-entrypoint-initdb.d
+        environment:
+            - MYSQL_ROOT_PASSWORD=root
