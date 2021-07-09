@@ -22,7 +22,7 @@ class ProdutoFactory extends Factory
     public function definition()
     {
         return [
-            //
+            'sku' => md5(uniqid())
         ];
     }
 }
