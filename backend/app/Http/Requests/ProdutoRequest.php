@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class ProdutoRequest extends FormRequest
 {
@@ -24,7 +25,10 @@ class ProdutoRequest extends FormRequest
     public function rules()
     {
         return [
-            'sku' => 'required|alpha_num'
+            'sku' => [
+                Rule::requiredIf($this->isMethod('POST') || $this->isMethod('PUT')), 
+                'alpha_num'
+            ]
         ];
     }
 }
