@@ -73,6 +73,14 @@ class ProdutoTest extends TestCase
         $this->assertEquals(3, Produto::count());
     }
 
+    public function testUpdate(){
+        $sku = md5(uniqid());
+        $response = $this->produtoRepository->save([
+            'sku' => $sku
+        ],$this->fake->id);
+        $this->assertEquals($sku,$response->sku);
+    }
+
     public function testFieldNullSku()
     {
         $data = [
