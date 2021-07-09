@@ -22,7 +22,8 @@ class EstoqueFactory extends Factory
     public function definition()
     {
         return [
-            //
+            'produto_id' => md5(uniqid()),
+            'quantidade' => $this->faker->randomNumber(1)
         ];
     }
 }
