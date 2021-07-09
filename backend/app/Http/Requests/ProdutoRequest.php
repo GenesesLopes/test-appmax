@@ -2,11 +2,22 @@
 
 namespace App\Http\Requests;
 
+use App\Repositories\Contracts\IProduto;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Validator;
 
 class ProdutoRequest extends FormRequest
 {
+
+    public function __construct(
+        public IProduto $iProduto,
+        array $query = [],
+        array $request = []
+    ){
+        parent::__construct(query: $query, request: $request);
+    }
+
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -31,4 +42,14 @@ class ProdutoRequest extends FormRequest
             ]
         ];
     }
+
+    public function withValidator(Validator $validator) {
+        $validator->after(function (Validator $validator){
+            if(!$validator->errors()->count() && ($this->isMethod('post') || $this->isMethod('put'))){
+                if($this->iProduto->findBySku($this->sku) !== null){
+                    $validator->errors()->add('sku', 'Sku já presente na aplicação');
+                }
+            }
+        });
+    }   
 }
