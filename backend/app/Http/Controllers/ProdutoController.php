@@ -2,63 +2,43 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ProdutoRequest;
 use App\Models\Produto;
-use Illuminate\Http\Request;
+use App\Repositories\Contracts\IProduto;
 
 class ProdutoController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
+    public function __construct(
+        private IProduto $iProduto
+    ){
+        
+    }
+    public function index(int $perPage = 15)
     {
-        //
+        return $this->iProduto->paginate($perPage);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
+    
+    public function store(ProdutoRequest $request)
     {
-        //
+        return $this->iProduto->save($request->all());
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Produto  $produto
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Produto $produto)
+    
+    public function show(int $id)
     {
-        //
+        return $this->iProduto->find($id);
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Produto  $produto
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, Produto $produto)
+    public function update(ProdutoRequest $request, int $id)
     {
-        //
+        return $this->iProduto->save($request->all(),$id);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Produto  $produto
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Produto $produto)
+   
+    public function destroy(ProdutoRequest $request)
     {
-        //
+        $this->iProduto->destroy($request->id);
+        return response()->noContent();
     }
 }
