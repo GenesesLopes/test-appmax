@@ -68,7 +68,31 @@ class ProdutoTest extends TestCase
             'sku' => $sku
         ]);
         $this->assertEquals($sku,$response->sku);
+        $this->assertEquals(3, Produto::count());
+    }
 
+    public function testFieldNullSku()
+    {
+        $data = [
+            '',
+            '   ',
+            '*& ',
+            null, 
+            true
+        ];
+        $erros = 0;
+        foreach($data as $dataValue){
+            try {
+                $this->produtoRepository->save([
+                    'sku' => $dataValue
+                ]);
+            } catch (\Throwable $th) {
+                dd($th->errorInfo);
+                $erros++;
+            }
+        }
+        $this->assertEquals(count($data),$erros);
+        
     }
 
     
