@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Repositories\Eloquent;
 
 use App\Exceptions\Sql\Nullable;
+use App\Exceptions\Sql\Unique;
 use App\Models\Produto;
 use App\Repositories\Contracts\IProduto;
 use Illuminate\Database\Eloquent\Collection;
@@ -51,7 +52,8 @@ class ProdutoRepository implements IProduto
         } catch (\PDOException $pdoE) {
             $code = $pdoE->errorInfo[1];
             match ($code) {
-                1048 => throw new Nullable($pdoE->errorInfo[2], 422)
+                1048 => throw new Nullable($pdoE->errorInfo[2], 422),
+                1062 => throw new Unique($pdoE->errorInfo[2], 422)
             };
         }
     }
