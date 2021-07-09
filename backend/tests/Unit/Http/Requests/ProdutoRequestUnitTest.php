@@ -21,6 +21,7 @@ class ProdutoRequestUnitTest extends TestCase
 
     private ProdutoRequest $request;
     private Collection $data;
+    private Collection $dataMock;
     private array $methods;
     protected IProduto $produtoRepository;
 
@@ -44,14 +45,17 @@ class ProdutoRequestUnitTest extends TestCase
             ->validateResolved();
     }
 
-    protected function mockRepository(array|Object|null $data = null)
+    protected function mockRepository(array $data = [])
     {
         $this->produtoRepository = $this->mock(
             IProduto::class,
             function (MockInterface $mock) use ($data) {
-                $mock->shouldReceive('findBySku')
-                    ->andReturn($data)
+                foreach ($data as $method => $return) {
+                    $mock->shouldReceive($method)
+                    ->withAnyArgs()
+                    ->andReturn($return)
                     ->getMock();
+                }
             }
         );
     }
@@ -60,13 +64,19 @@ class ProdutoRequestUnitTest extends TestCase
     {
         parent::setUp();
         \DB::disconnect();
-        $this->mockRepository();
+        $this->dataMock = collect([
+            'findBySku' => null,
+            'find' => Produto::factory()->makeOne()
+        ]);
+        $this->mockRepository($this->dataMock->toArray());
         $this->data = collect([]);
         $this->methods = ['post', 'put'];
     }
 
     public function testSucess()
     {
+        
+        // dd($this->produtoRepository->find(1));
         foreach ($this->methods as $method) {
             $data = [
                 'asdcqweqwe',
@@ -119,8 +129,12 @@ class ProdutoRequestUnitTest extends TestCase
     public function testSkuExists()
     {
         $produto = Produto::factory()->makeOne();
+        $newReturn = [
+            'find' => $this->dataMock->get('find'),
+            'findBySku' => $produto
+        ];
         $this->mockRepository(
-            $produto
+            $newReturn
         );
         $error = [
             'sku' => 'Sku já presente na aplicação'
@@ -129,6 +143,30 @@ class ProdutoRequestUnitTest extends TestCase
         $this->assertCustomInvalidation(
             $produto->toArray(),
             $error
+        );
+        
+    }
+
+    public function testIdProductNotExists()
+    {
+        $produto = Produto::factory()->makeOne();
+        $newReturn = [
+            'find' => null,
+            'findBySku' => null
+        ];
+        
+        $this->mockRepository(
+            $newReturn
+        );
+        $error = [
+            'id' => 'Produto não encontrado'
+        ];
+
+        $this->assertCustomInvalidation(
+            $produto->toArray(),
+            $error,
+            'delete',
+            ['id' => 1]
         );
         
     }

@@ -112,5 +112,20 @@ class ProdutoTest extends TestCase
         ]);
     }
 
+    public function testDelete()
+    {
+        //Soft Delete
+        $response = $this->produtoRepository->destroy($this->fake->id);
+        $this->assertTrue($response);
+        $this->assertDatabaseCount('produtos',1);
+        
+        //Delete fisico
+        $this->fake->restore();
+        $response = $this->produtoRepository->destroy($this->fake->id,true);
+        $this->assertTrue($response);
+        $this->assertDatabaseCount('produtos',0);
+
+    }
+
     
 }
