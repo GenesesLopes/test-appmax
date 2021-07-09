@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Repositories;
 
+use App\Exceptions\Sql\Nullable;
 use App\Models\Produto;
 use App\Repositories\Eloquent\ProdutoRepository;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
@@ -86,8 +87,7 @@ class ProdutoTest extends TestCase
                 $this->produtoRepository->save([
                     'sku' => $dataValue
                 ]);
-            } catch (\Throwable $th) {
-                dd($th->errorInfo);
+            } catch (Nullable $thNull) {
                 $erros++;
             }
         }
