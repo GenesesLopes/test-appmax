@@ -18,6 +18,8 @@ class CreateProdutosTable extends Migration
             $table->string('sku');
             $table->softDeletes();
             $table->timestamps();
+
+            $table->index('sku');
         });
     }
 
