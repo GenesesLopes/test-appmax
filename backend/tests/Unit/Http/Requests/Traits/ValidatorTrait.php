@@ -21,8 +21,9 @@ trait ValidatorTrait
     {
         $requestClass = $this->requesClass();
         
-        $newData = count($data) ? $data : $this->data->toArray();
-        
+        $newData = count($data) || (count(array_keys($this->data->toArray())) === 1 && !count($data))
+            ? $data 
+            : $this->data->toArray();
         $this->request = new $requestClass($query, $newData);
         $this->request->setMethod($method);
         $this->request->setContainer(app())

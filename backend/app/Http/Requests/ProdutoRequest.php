@@ -24,7 +24,7 @@ class ProdutoRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'sku' => 'required|alpha_num'
         ];
     }
 }
