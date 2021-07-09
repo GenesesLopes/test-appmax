@@ -26,7 +26,7 @@ class MovimentacaoFactory extends Factory
         }while($quantidade == 0);
         
         return [
-            'estoque_produtos_id' => rand(1,10),
+            'estoque_produto_id' => rand(1,10),
             'quantidade' => $quantidade,
             'acao' => $quantidade > 0 ? 'Adição' : 'Remoção',
             'origem' => rand(0, 2) % 2 === 0 ? 'Sistema' : 'Api' 
