@@ -4,32 +4,17 @@ declare(strict_types = 1);
 namespace Tests\Unit\Http\Requests\Traits;
 
 use Arr;
-use Illuminate\Routing\Redirector;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Validation\ValidationException;
 
 trait ValidatorTrait
 {
 
-    protected abstract function requesClass(): string;
-
-    protected function instanceRequest(
+    protected abstract function instanceRequest(
         array $data = [],
         string $method = 'post',
         array $query = []
-        )
-    {
-        $requestClass = $this->requesClass();
-        
-        $newData = count($data) || (count(array_keys($this->data->toArray())) === 1 && !count($data))
-            ? $data 
-            : $this->data->toArray();
-        $this->request = new $requestClass($query, $newData);
-        $this->request->setMethod($method);
-        $this->request->setContainer(app())
-                ->setRedirector(app(Redirector::class))
-                ->validateResolved();
-    }
+    ): void;
 
     protected function assertSuccessValidator(
         string $method = 'post',
@@ -75,5 +60,31 @@ trait ValidatorTrait
         }finally{
             $this->assertTrue(isset($ex));
         }
+    }
+
+    protected function assertCustomInvalidation(
+        array $data,
+        array $errorAdnMensage = [],
+        string $method = 'post',
+        array $query = []
+    )
+    {
+        try {
+            $this->instanceRequest($data,$method,$query);
+
+        } catch (ValidationException $th) {
+            $fieldsError = $th->errors();
+            foreach ($errorAdnMensage as $field => $message) {
+                $this->assertTrue(
+                    in_array(
+                        $message,
+                        Arr::get($fieldsError,$field)
+                    )
+                );
+            }
+        }finally{
+            $this->assertTrue(isset($th));
+        }
+        
     }
 }

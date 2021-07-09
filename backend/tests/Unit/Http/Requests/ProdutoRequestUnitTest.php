@@ -1,10 +1,17 @@
 <?php
-declare (strict_types = 1);
+
+declare(strict_types=1);
 
 namespace Tests\Unit\Http\Requests;
 
 use App\Http\Requests\ProdutoRequest;
+use App\Models\Produto;
+use App\Repositories\Contracts\IProduto;
+use Arr;
+use Illuminate\Routing\Redirector;
 use Illuminate\Support\Collection;
+use Mockery;
+use Mockery\MockInterface;
 use Tests\TestCase;
 use Tests\Unit\Http\Requests\Traits\ValidatorTrait;
 
@@ -15,16 +22,45 @@ class ProdutoRequestUnitTest extends TestCase
     private ProdutoRequest $request;
     private Collection $data;
     private array $methods;
+    protected IProduto $produtoRepository;
 
-    protected function requesClass(): string
+    protected function instanceRequest(
+        array $data = [],
+        string $method = 'post',
+        array $query = []
+    ): void {
+
+        $newData = count($data) || (count(array_keys($this->data->toArray())) === 1 && !count($data))
+            ? $data
+            : $this->data->toArray();
+        $this->request = new ProdutoRequest(
+            $this->produtoRepository,
+            $query,
+            $newData
+        );
+        $this->request->setMethod($method);
+        $this->request->setContainer(app())
+            ->setRedirector(app(Redirector::class))
+            ->validateResolved();
+    }
+
+    protected function mockRepository(array|Object|null $data = null)
     {
-        return ProdutoRequest::class;
+        $this->produtoRepository = $this->mock(
+            IProduto::class,
+            function (MockInterface $mock) use ($data) {
+                $mock->shouldReceive('findBySku')
+                    ->andReturn($data)
+                    ->getMock();
+            }
+        );
     }
 
     protected function setUp(): void
     {
         parent::setUp();
         \DB::disconnect();
+        $this->mockRepository();
         $this->data = collect([]);
         $this->methods = ['post', 'put'];
     }
@@ -78,5 +114,22 @@ class ProdutoRequestUnitTest extends TestCase
                 $this->assertInvalidationFieldRule($dataInsert, 'alpha_num', method: $method);
             }
         }
+    }
+
+    public function testSkuExists()
+    {
+        $produto = Produto::factory()->makeOne();
+        $this->mockRepository(
+            $produto
+        );
+        $error = [
+            'sku' => 'Sku já presente na aplicação'
+        ];
+
+        $this->assertCustomInvalidation(
+            $produto->toArray(),
+            $error
+        );
+        
     }
 }
