@@ -27,7 +27,7 @@ class ProdutoRepository implements IProduto
         return Produto::all();
     }
 
-    public function paginate(int $page = 0, int $perPage = 15): LengthAwarePaginator
+    public function paginate(int $page = 1, int $perPage = 15): LengthAwarePaginator
     {
         return Produto::paginate($perPage, page: $page);
     }
