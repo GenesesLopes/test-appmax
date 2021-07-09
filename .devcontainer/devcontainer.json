@@ -35,7 +35,8 @@
 		"neilbrayfield.php-docblocker",
 		"rifi2k.format-html-in-php",
 		"octref.vetur",
-		"irongeek.vscode-env"
+		"irongeek.vscode-env",
+		"rangav.vscode-thunder-client"
 	]
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
