@@ -57,4 +57,13 @@ class ProdutoRepository implements IProduto
             };
         }
     }
+
+    public function destroy(int $id, bool $force = false): ?bool
+    {
+        $produto = Produto::find($id);
+        if($force)
+           return $produto->forceDelete();
+        
+        return $produto->delete();
+    }
 }

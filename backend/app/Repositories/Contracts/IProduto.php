@@ -19,4 +19,6 @@ interface IProduto {
 
     public function save(array $data, ?int $id = null): Model;
 
+    public function destroy(int $id, bool $force = false): ?bool;
+
 }
