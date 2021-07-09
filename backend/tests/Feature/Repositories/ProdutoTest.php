@@ -3,6 +3,7 @@
 namespace Tests\Feature\Repositories;
 
 use App\Exceptions\Sql\Nullable;
+use App\Exceptions\Sql\Unique;
 use App\Models\Produto;
 use App\Repositories\Eloquent\ProdutoRepository;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
@@ -92,7 +93,15 @@ class ProdutoTest extends TestCase
             }
         }
         $this->assertEquals(count($data),$erros);
+    }
+
+    public function testFieldUniqueSku()
+    {
+        $this->expectException(Unique::class);
         
+        $this->produtoRepository->save([
+            'sku' => $this->fake->sku
+        ]);
     }
 
     
