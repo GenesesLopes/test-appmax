@@ -45,10 +45,18 @@ class ProdutoRequest extends FormRequest
 
     public function withValidator(Validator $validator) {
         $validator->after(function (Validator $validator){
-            if(!$validator->errors()->count() && ($this->isMethod('post') || $this->isMethod('put'))){
-                if($this->iProduto->findBySku($this->sku) !== null){
-                    $validator->errors()->add('sku', 'Sku já presente na aplicação');
+            if(!$validator->errors()->count()){
+                if($this->isMethod('post') || $this->isMethod('put')){
+                    if($this->iProduto->findBySku($this->sku) !== null){
+                        $validator->errors()->add('sku', 'Sku já presente na aplicação');
+                    }
                 }
+                else if($this->isMethod('delete')){
+                    if($this->iProduto->find($this->id) == null){
+                        $validator->errors()->add('id', 'Produto não encontrado');
+                    }
+                }
+                
             }
         });
     }   
