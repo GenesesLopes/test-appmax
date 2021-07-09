@@ -34,6 +34,12 @@ class ProdutoRepository implements IProduto
 
     public function save(array $data, ?int $id = null): Model
     {
+        foreach ($data as $key => $value) {
+            if(!is_numeric($value))
+                $value = preg_replace("/\W/","",$value);
+            $data[$key] = $value == '' ? null: $value;
+        }
+        
         return Produto::updateOrCreate(
             ['id' => $id],
             $data
