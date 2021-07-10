@@ -22,6 +22,7 @@ class ProdutoFactory extends Factory
     public function definition()
     {
         return [
+            'nome' => $this->faker->colorName(),
             'sku' => md5(uniqid())
         ];
     }
