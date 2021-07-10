@@ -10,14 +10,11 @@ class Estoque extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $fillable = ['produto_id','quantidade'];
+    protected $fillable = ['id','produtos_id','quantidade'];
     protected $dates = ['deleted_at'];
 
     protected $casts = [
-        'quantidade'=> 'integer'
+        'quantidade'=> 'integer',
+        'produtos_id' => 'integer'
     ];
-
-    protected $primaryKey = 'produto_id';
-
-    public $incrementing = false;
 }
