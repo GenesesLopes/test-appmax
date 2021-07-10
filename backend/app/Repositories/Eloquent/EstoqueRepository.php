@@ -14,18 +14,24 @@ class EstoqueRepository implements IEstoque
     public function findProduto(array $data): Model
     {
         return Estoque::firstOrNew(
-            ['produtos_id' => $data['produtos_id']],
-            $data
+            ['produto_id' => $data['produto_id']],
+            [
+                'produto_id' => $data['produto_id'],
+                'quantidade' => $data['quantidade']
+            ]
         );
     }
 
-    public function save(Model $model, array $data): Model
+    public function add(array $data): Model
     {
-        return \DB::transaction(function()use($data, $model){
-            $model = $model->save();
-            // Movimentacao::where('produtos_id', $data['produto_id'])
-            // ->update($data);
-        });
+        try {
+            \DB::beginTransaction();
+            $estoque = $this->findProduto($data);
+            \DB::commit();
+            return $estoque;
+        } catch (\Exception $th) {
+            \DB::rollBack();
+        }
     }
 
 }
