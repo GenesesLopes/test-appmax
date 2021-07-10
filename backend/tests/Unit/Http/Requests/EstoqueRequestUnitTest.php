@@ -19,8 +19,6 @@ class EstoqueRequestUnitTest extends TestCase
 
     private EstoqueRequest $request;
     private Collection $data;
-    private Collection $dataMock;
-    private array $methods;
     private Produto $produto;
     protected Generator $fake;    
     protected IProduto $produtoRepository;
@@ -83,7 +81,6 @@ class EstoqueRequestUnitTest extends TestCase
         $this->mockRepository([
             'find' => $this->produto
         ]);
-        $this->methods = ['post', 'put'];
     }
 
     public function testSuccess()
