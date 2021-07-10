@@ -25,7 +25,7 @@ class EstoqueUnitTest extends TestCase
     {
         $fillables = [
             'id',
-            'produtos_id',
+            'produto_id',
             'quantidade' 
         ];
         $fillable = $this->estoque->getFillable();
@@ -60,7 +60,7 @@ class EstoqueUnitTest extends TestCase
     {
         $casts = [
             'quantidade'=> 'integer',
-            'produtos_id' => 'integer'
+            'produto_id' => 'integer'
         ];
         $getCasts = $this->estoque->getCasts();
 
