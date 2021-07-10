@@ -9,10 +9,10 @@ class Movimentacao extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['id','estoque_id','quantidade', 'acao', 'origem'];
+    protected $fillable = ['id','produtos_id','quantidade', 'acao', 'origem'];
 
     protected $casts = [
         'quantidade'=> 'integer',
-        'estoque_id' => 'integer'
+        'produtos_id' => 'integer'
     ];
 }
