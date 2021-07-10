@@ -15,7 +15,7 @@ class ProdutoController extends Controller
     }
     public function index(int $perPage = 15)
     {
-        return $this->iProduto->paginate($perPage);
+        return $this->iProduto->paginate(perPage: $perPage);
     }
 
     

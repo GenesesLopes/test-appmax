@@ -15,7 +15,7 @@ interface IProduto {
 
     public function findAll(): Collection;
 
-    public function paginate(int $perPage): LengthAwarePaginator;
+    public function paginate(int $page = 1, int $perPage = 15): LengthAwarePaginator;
 
     public function save(array $data, ?int $id = null): Model;
 
