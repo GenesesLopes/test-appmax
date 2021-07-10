@@ -43,6 +43,7 @@ trait ValidatorTrait
             $this->instanceRequest(method: $method, data: $data);
         } catch (ValidationException $ex) {
             $fields = array_keys($ex->errors());
+            // dump($ex->errors());
             foreach ($fields as $field) {
                 $fieldName = str_replace('_', ' ', $field);
                 $fieldStringAttribute = "validation.attributes.{$field}";
@@ -64,7 +65,7 @@ trait ValidatorTrait
 
     protected function assertCustomInvalidation(
         array $data,
-        array $errorAdnMensage = [],
+        array $errorAndMensage = [],
         string $method = 'post',
         array $query = []
     )
@@ -74,7 +75,7 @@ trait ValidatorTrait
 
         } catch (ValidationException $th) {
             $fieldsError = $th->errors();
-            foreach ($errorAdnMensage as $field => $message) {
+            foreach ($errorAndMensage as $field => $message) {
                 $this->assertTrue(
                     in_array(
                         $message,

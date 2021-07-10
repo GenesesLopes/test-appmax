@@ -22,6 +22,7 @@ class ProdutoUnitTest extends TestCase
     {
         $fillables = [
             'id',
+            'nome',
             'sku',
             'deleted_at'
         ];

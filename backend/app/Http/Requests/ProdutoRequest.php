@@ -39,7 +39,11 @@ class ProdutoRequest extends FormRequest
             'sku' => [
                 Rule::requiredIf($this->isMethod('POST') || $this->isMethod('PUT')), 
                 'alpha_num'
-            ]
+            ],
+            'nome' => [
+                Rule::requiredIf($this->isMethod('POST') || $this->isMethod('PUT')),
+                'string'
+                ]
         ];
     }
 

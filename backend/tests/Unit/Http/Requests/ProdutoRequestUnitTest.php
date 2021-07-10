@@ -7,10 +7,10 @@ namespace Tests\Unit\Http\Requests;
 use App\Http\Requests\ProdutoRequest;
 use App\Models\Produto;
 use App\Repositories\Contracts\IProduto;
-use Arr;
+use Faker\Factory;
+use Faker\Generator;
 use Illuminate\Routing\Redirector;
 use Illuminate\Support\Collection;
-use Mockery;
 use Mockery\MockInterface;
 use Tests\TestCase;
 use Tests\Unit\Http\Requests\Traits\ValidatorTrait;
@@ -24,6 +24,7 @@ class ProdutoRequestUnitTest extends TestCase
     private Collection $dataMock;
     private array $methods;
     protected IProduto $produtoRepository;
+    protected Generator $fake;
 
     protected function instanceRequest(
         array $data = [],
@@ -52,9 +53,9 @@ class ProdutoRequestUnitTest extends TestCase
             function (MockInterface $mock) use ($data) {
                 foreach ($data as $method => $return) {
                     $mock->shouldReceive($method)
-                    ->withAnyArgs()
-                    ->andReturn($return)
-                    ->getMock();
+                        ->withAnyArgs()
+                        ->andReturn($return)
+                        ->getMock();
                 }
             }
         );
@@ -64,6 +65,9 @@ class ProdutoRequestUnitTest extends TestCase
     {
         parent::setUp();
         \DB::disconnect();
+        $this->fake = Factory::create(
+            \Config::get('app.faker_locale')
+        );
         $this->dataMock = collect([
             'findBySku' => null,
             'find' => Produto::factory()->makeOne()
@@ -75,26 +79,34 @@ class ProdutoRequestUnitTest extends TestCase
 
     public function testSucess()
     {
-        
-        // dd($this->produtoRepository->find(1));
         foreach ($this->methods as $method) {
             $data = [
-                'asdcqweqwe',
-                12341241231231,
-                'asds123123',
-                'asdA213ASD'
+                [
+                    'sku' => 'asdcqweqwe',
+                    'nome' => $this->fake->colorName()
+                ],
+                [
+                    'sku' => 12341241231231,
+                    'nome' => $this->fake->name()
+                ],
+                [
+                    'sku' => 'asds123123',
+                    'nome' => $this->fake->text()
+                ],
+                [
+                    'sku' => 'asdA213ASD',
+                    'nome' => $this->fake->city()
+                ]
             ];
             foreach ($data as $dataValue) {
-                $dataInsert = $this->data->merge([
-                    'sku' => $dataValue
-                ])->toArray();
-                $this->assertSuccessValidator(data: $dataInsert, method: $method);
+                $this->assertSuccessValidator(data: $dataValue, method: $method);
             }
         }
     }
 
     public function testInvalidationFieldSku()
     {
+       $this->data = $this->data->merge(['nome' => $this->fake->colorName()]);
         foreach ($this->methods as $method) {
             $data = $this->data->except('sku')->toArray();
             $this->assertInvalidationFieldRule($data, 'required', method: $method);
@@ -126,6 +138,39 @@ class ProdutoRequestUnitTest extends TestCase
         }
     }
 
+    public function testInvalidationFieldNome()
+    {
+       $this->data = $this->data->merge(['sku' => $this->fake->randomNumber(4)]);
+        foreach ($this->methods as $method) {
+            $data = $this->data->except('nome')->toArray();
+            $this->assertInvalidationFieldRule($data, 'required', method: $method);
+            $data = [
+                null,
+                '',
+                " ",
+                "   "
+            ];
+            foreach ($data as $dataValue) {
+                $dataInsert = $this->data->merge([
+                    'nome' => $dataValue
+                ])->toArray();
+                $this->assertInvalidationFieldRule($dataInsert, 'required', method: $method);
+            }
+
+            $data = [
+                true,
+                1.0123,
+                1234412
+            ];
+            foreach ($data as $dataValue) {
+                $dataInsert = $this->data->merge([
+                    'nome' => $dataValue
+                ])->toArray();
+                $this->assertInvalidationFieldRule($dataInsert, 'string', method: $method);
+            }
+        }
+    }
+
     public function testSkuExists()
     {
         $produto = Produto::factory()->makeOne();
@@ -144,7 +189,6 @@ class ProdutoRequestUnitTest extends TestCase
             $produto->toArray(),
             $error
         );
-        
     }
 
     public function testIdProductNotExists()
@@ -154,7 +198,7 @@ class ProdutoRequestUnitTest extends TestCase
             'find' => null,
             'findBySku' => null
         ];
-        
+
         $this->mockRepository(
             $newReturn
         );
@@ -168,6 +212,5 @@ class ProdutoRequestUnitTest extends TestCase
             'delete',
             ['id' => 1]
         );
-        
     }
 }
