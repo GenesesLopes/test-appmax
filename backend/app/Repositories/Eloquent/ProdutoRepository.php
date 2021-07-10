@@ -38,11 +38,14 @@ class ProdutoRepository implements IProduto
     public function save(array $data, ?int $id = null): Model
     {
         foreach ($data as $key => $value) {
-            if (!is_null($value)) {
-                if (!is_numeric($value) && !is_bool($value))
-                    $value = preg_replace("/\W/", "", $value);
-                $data[$key] = $value == '' || is_bool($value) ? null : $value;
+            if($key == 'sku'){
+                if (!is_null($value)) {
+                    if (!is_numeric($value) && !is_bool($value))
+                        $value = preg_replace("/\W/", "", $value);
+                    $data[$key] = $value == '' || is_bool($value) ? null : $value;
+                }
             }
+            
         }
         try {
             return Produto::updateOrCreate(
@@ -51,9 +54,11 @@ class ProdutoRepository implements IProduto
             );
         } catch (\PDOException $pdoE) {
             $code = $pdoE->errorInfo[1];
+            // dump($pdoE);
             match ($code) {
                 1048 => throw new Nullable($pdoE->errorInfo[2], 422),
-                1062 => throw new Unique($pdoE->errorInfo[2], 422)
+                1062 => throw new Unique($pdoE->errorInfo[2], 422),
+                1364 => throw new Nullable($pdoE->errorInfo[2], 422)
             };
         }
     }

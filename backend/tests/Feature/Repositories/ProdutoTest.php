@@ -6,6 +6,8 @@ use App\Exceptions\Sql\Nullable;
 use App\Exceptions\Sql\Unique;
 use App\Models\Produto;
 use App\Repositories\Eloquent\ProdutoRepository;
+use Faker\Factory;
+use Faker\Generator;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -19,12 +21,16 @@ class ProdutoTest extends TestCase
 
     private ProdutoRepository $produtoRepository;
     private Produto $fake;
+    private Generator $fakeData;
 
     protected function setUp(): void
     {
         parent::setUp();
         $this->produtoRepository = new ProdutoRepository;
         $this->fake = Produto::factory()->create();
+        $this->fakeData = Factory::create(
+            \Config::get('app.faker_locale')
+        );
     }
 
     public function testFindProductAll()
@@ -60,25 +66,34 @@ class ProdutoTest extends TestCase
     public function testSaveSuccess()
     {
         $sku = md5(uniqid());
+        $nome = $this->fakeData->name();
         $response = $this->produtoRepository->save([
-            'sku' => $sku
+            'sku' => $sku,
+            'nome' => $nome
         ]);
         $this->assertNotNull($response);
         $this->assertEquals($sku,$response->sku);
+        $this->assertEquals($nome,$response->nome);
         $sku = md5(uniqid());
+        $nome = $this->fakeData->name();
         $response = $this->produtoRepository->save([
-            'sku' => $sku
+            'sku' => $sku,
+            'nome' => $nome
         ]);
         $this->assertEquals($sku,$response->sku);
+        $this->assertEquals($nome,$response->nome);
         $this->assertEquals(3, Produto::count());
     }
 
     public function testUpdate(){
         $sku = md5(uniqid());
+        $nome = $this->fakeData->colorName();
         $response = $this->produtoRepository->save([
-            'sku' => $sku
+            'sku' => $sku,
+            'nome' => $nome
         ],$this->fake->id);
         $this->assertEquals($sku,$response->sku);
+        $this->assertEquals($nome,$response->nome);
     }
 
     public function testFieldNullSku()
@@ -108,7 +123,8 @@ class ProdutoTest extends TestCase
         $this->expectException(Unique::class);
         
         $this->produtoRepository->save([
-            'sku' => $this->fake->sku
+            'sku' => $this->fake->sku,
+            'nome' => $this->fakeData->colorName()
         ]);
     }
 

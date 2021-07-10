@@ -34,7 +34,8 @@ class ProdutoContollerTest extends TestCase
         $this->routeStore = route('produto.store');
         $this->routeUpdate = route('produto.update', ['id' => $this->produto->id]);
         $this->data = collect([
-            'sku' => md5(uniqid())
+            'sku' => md5(uniqid()),
+            'nome' => 'Nome qualquer'
         ]);
     }
 
@@ -66,13 +67,50 @@ class ProdutoContollerTest extends TestCase
         $this->assertDatabaseCount('produtos',2);
     }
 
-    public function testStoreUpdate()
+    public function testUpdateSuccess()
     {
         $response = $this->json('put',$this->routeUpdate,$this->data->toArray());
         $response->assertStatus(200);
         $this->assertEquals($this->data->get('sku'),$response->json('sku'));
         $this->assertDatabaseCount('produtos',1);
     }
+
+    public function testStoreFail()
+    {
+        $response = $this->json('post',$this->routeStore,[]);
+        $response->assertStatus(422);
+
+        $data = $this->data->merge([
+            'sku' => $this->produto->sku
+        ])->toArray();
+
+        $response = $this->json('post',$this->routeStore,$data);
+        $response->assertStatus(422);
+    }
+
+    public function testStoreUpdate()
+    {
+        $dataFake = Produto::factory()->create();
+        $data = $this->data->merge([
+            'sku' => $dataFake->sku
+        ])->toArray();
+        $response = $this->json('put',$this->routeUpdate,$data);
+        $response->assertStatus(422);
+    }
+
+    public function testDeleteSuccess()
+    {
+        $response = $this->json('delete',route('produto.destroy',['id' => $this->produto->id]));
+        $response->assertStatus(204);
+
+    }
+
+    public function testDeleteFail()
+    {
+        $response = $this->json('delete',route('produto.destroy',['id' => 10]));
+        $response->assertStatus(422);
+    }
+
 
 
 
