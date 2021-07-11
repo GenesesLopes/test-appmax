@@ -15,6 +15,7 @@ class ProdutoController extends Controller
     }
     public function index(ProdutoRequest $request)
     {
+        // dump($request->getHttpHost());
         $perPage = $request->query('per_page') !== null ? (int)$request->query('per_page') : 15;
         $page = $request->query('page') !== null ? (int) $request->query('page'): 1;
         return $this->iProduto->paginate(perPage: $perPage, page: $page);
