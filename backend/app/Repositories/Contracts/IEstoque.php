@@ -8,5 +8,6 @@ use App\Models\Estoque;
 interface IEstoque 
 {
     public function add(array $data): Estoque;
+    public function remove(array $data): Estoque;
     public function findProduto(array $data): Estoque;
 }
