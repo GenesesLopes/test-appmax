@@ -56,4 +56,9 @@ class EstoqueRepository implements IEstoque
         });
     }
 
+    public function countQuantidade(int $idProduto): int
+    {
+        return Estoque::where('produto_id',$idProduto)->sum('quantidade');
+    }
+
 }
