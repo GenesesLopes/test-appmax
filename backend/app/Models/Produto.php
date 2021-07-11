@@ -12,4 +12,14 @@ class Produto extends Model
 
     protected $fillable = ['id', 'nome','sku', 'deleted_at'];
     protected $dates = ['deleted_at'];
+
+    public function movimentacao()
+    {
+        return $this->hasMany(Movimentacao::class,'produto_id','id');
+    }
+
+    public function estoque()
+    {
+        return $this->hasMany(Estoque::class,'produto_id');
+    }
 }

@@ -6,6 +6,7 @@ use App\Http\Requests\EstoqueRequest;
 use App\Models\Estoque;
 use App\Repositories\Contracts\IEstoque;
 use App\Services\Contracts\IEstoqueServices;
+use App\Services\Contracts\IMovimentacoesServices;
 use App\Services\EstoqueServices;
 use Illuminate\Http\Request;
 
@@ -15,7 +16,8 @@ class EstoqueController extends Controller
 
     public function __construct(
         private IEstoqueServices $estoqueServices,
-        private IEstoque $estoqueRepository
+        private IEstoque $estoqueRepository,
+        private IMovimentacoesServices $iMovimentacoesServices
     ) {
     }
 
@@ -48,5 +50,10 @@ class EstoqueController extends Controller
         $response = $this->estoqueServices->movimentacao($request->all());
 
         return response()->json($response->toArray());
+    }
+
+    public function relatorio(Request $request)
+    {
+        return $this->iMovimentacoesServices->relatorio($request->all());
     }
 }

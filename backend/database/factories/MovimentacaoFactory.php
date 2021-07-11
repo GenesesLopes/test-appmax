@@ -21,14 +21,14 @@ class MovimentacaoFactory extends Factory
      */
     public function definition()
     {
-        do{
-            $quantidade = rand(-2, 9);
-        }while($quantidade == 0);
+        // do{
+        //     $quantidade = rand(1, 9);
+        // }while($quantidade == 0);
         
         return [
-            'estoque_produto_id' => rand(1,10),
-            'quantidade' => $quantidade,
-            'acao' => $quantidade > 0 ? 'Adição' : 'Remoção',
+            'produto_id' => rand(1,10),
+            'quantidade' => rand(1, 9),
+            'acao' => rand(0, 2) % 2 === 0 ? 'Adição' : 'Remoção',
             'origem' => rand(0, 2) % 2 === 0 ? 'Sistema' : 'Api' 
         ];
     }

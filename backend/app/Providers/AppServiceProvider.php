@@ -9,7 +9,9 @@ use App\Repositories\Eloquent\EstoqueRepository;
 use App\Repositories\Eloquent\MovimentacaoRepository;
 use App\Repositories\Eloquent\ProdutoRepository;
 use App\Services\Contracts\IEstoqueServices;
+use App\Services\Contracts\IMovimentacoesServices;
 use App\Services\EstoqueServices;
+use App\Services\MovimentacoesServices;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -39,6 +41,11 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             IEstoqueServices::class,
             EstoqueServices::class
+        );
+
+        $this->app->bind(
+            IMovimentacoesServices::class,
+            MovimentacoesServices::class
         );
     }
 
