@@ -93,6 +93,10 @@ class EstoqueTest extends TestCase
         ];
 
         $response = $this->estoqueRepository->findProduto($data);
+        $this->assertNull($response);
+        $data['produto_id'] = $this->estoque->first()->produto_id;
+        $response = $this->estoqueRepository->findProduto($data);
+        
         $this->assertArrayIntersect(
             $data,
             $response->getAttributes()

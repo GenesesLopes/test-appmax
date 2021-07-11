@@ -9,6 +9,7 @@ use App\Models\Movimentacao;
 use App\Repositories\Contracts\IEstoque;
 use App\Repositories\Contracts\IMovimentacao;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class EstoqueRepository implements IEstoque
 {
@@ -19,15 +20,12 @@ class EstoqueRepository implements IEstoque
     {
     }
 
-    public function findProduto(array $data): Estoque
+    public function findProduto(array $data): ?Estoque
     {
-        return Estoque::firstOrNew(
-            ['produto_id' => $data['produto_id']],
-            [
-                'produto_id' => $data['produto_id'],
-                'quantidade' => $data['quantidade']
-            ]
-        );
+        $estoque = Estoque::where('produto_id',$data['produto_id'])->first();
+        if($estoque == null)
+            return null;
+        return $estoque;
     }
 
     public function add(array $data): Estoque
@@ -35,8 +33,15 @@ class EstoqueRepository implements IEstoque
         $self = $this;
         return \DB::transaction(function() use ($self, $data){
             $estoque = $self->findProduto($data);
-            $estoque->quantidade += $data['quantidade'];
-            $estoque->save();
+            if($estoque === null){
+                $estoque = Estoque::create([
+                    'produto_id' => $data['produto_id'],
+                    'quantidade' => $data['quantidade']
+                ]);
+            }else{
+                $estoque->quantidade += $data['quantidade'];
+                $estoque->save();
+            }            
             $data['produto_id'] = $estoque->id;
             $self->iMovimentacao->add($data);
             return $estoque;
@@ -58,7 +63,12 @@ class EstoqueRepository implements IEstoque
 
     public function countQuantidade(int $idProduto): int
     {
-        return Estoque::where('produto_id',$idProduto)->sum('quantidade');
+        return (int)Estoque::where('produto_id',$idProduto)->sum('quantidade');
+    }
+
+    public function paginate(int $page = 1, int $perPage = 15): LengthAwarePaginator
+    {
+        return Estoque::paginate($perPage, page: $page);
     }
 
 }

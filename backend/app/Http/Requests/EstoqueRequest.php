@@ -5,6 +5,7 @@ namespace App\Http\Requests;
 use App\Repositories\Contracts\IEstoque;
 use App\Repositories\Contracts\IProduto;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
 
 class EstoqueRequest extends FormRequest
@@ -36,8 +37,8 @@ class EstoqueRequest extends FormRequest
     public function rules()
     {
         return [
-            'produto_id' => 'required|integer',
-            'quantidade' => 'required|integer|gt:0'
+            'produto_id' => [Rule::requiredIf(!$this->isMethod('get')),'integer'],
+            'quantidade' => [Rule::requiredIf(!$this->isMethod('get')),'integer','gt:0']
         ];
     }
     public function withValidator(Validator $validator)
@@ -45,13 +46,16 @@ class EstoqueRequest extends FormRequest
         $validator->after(function (Validator $validator) {
 
             if (!$validator->errors()->count()) {
-                if ($this->iProduto->find($this->produto_id) == null) {
-                    $validator->errors()->add('produto_id', 'Produto não encontrado');
-                } else if ($this->isMethod('PUT')) { // Validação para baixa de produtos
-                    if ($this->iEstoque->countQuantidade($this->produto_id) < $this->quantidade) {
-                        $validator->errors()->add('quantidade', 'Quantidade a ser removida deve ser igual ou superior à quantidade em estoque');
+                if(!$this->isMethod('get')){
+                    if ($this->iProduto->find($this->produto_id) == null) {
+                        $validator->errors()->add('produto_id', 'Produto não encontrado');
+                    } else if ($this->isMethod('PUT')) { // Validação para baixa de produtos
+                        if ($this->iEstoque->countQuantidade($this->produto_id) < $this->quantidade) {
+                            $validator->errors()->add('quantidade', 'Quantidade a ser removida deve ser igual ou superior à quantidade em estoque');
+                        }
                     }
                 }
+               
             }
         });
     }
