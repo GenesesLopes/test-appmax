@@ -43,4 +43,17 @@ class EstoqueRepository implements IEstoque
         });
     }
 
+    public function remove(array $data): Estoque
+    {
+        $self = $this;
+        return \DB::transaction(function() use ($self, $data){
+            $estoque = $self->findProduto($data);
+            $estoque->quantidade -= $data['quantidade'];
+            $estoque->save();
+            $data['produto_id'] = $estoque->id;
+            $self->iMovimentacao->add($data);
+            return $estoque;
+        });
+    }
+
 }
