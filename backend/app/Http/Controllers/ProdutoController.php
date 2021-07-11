@@ -13,9 +13,11 @@ class ProdutoController extends Controller
     ){
         
     }
-    public function index(int $perPage = 15)
+    public function index(ProdutoRequest $request)
     {
-        return $this->iProduto->paginate(perPage: $perPage);
+        $perPage = $request->query('per_page') !== null ? (int)$request->query('per_page') : 15;
+        $page = $request->query('page') !== null ? (int) $request->query('page'): 1;
+        return $this->iProduto->paginate(perPage: $perPage, page: $page);
     }
 
     

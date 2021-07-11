@@ -41,14 +41,25 @@ class ProdutoContollerTest extends TestCase
 
     public function testListIndex()
     {
-        $response = $this->json('GET',$this->routeStore);
+        Produto::factory()->count(30)->create();
+        $response = $this->json('GET',route('produto.index')); 
         $response->assertStatus(200)
+        ->assertJsonCount(15,'data')
         ->assertJsonStructure([
             'data' => [
                 '*' => $this->fieldSerialized
             ],
             'links' => []
         ]);
+
+        $response = $this->json('get',route('produto.index',[
+            'page' => 2,
+            'per_page' => 10
+        ]));
+        $response->assertStatus(200)
+            ->assertJsonCount(10,'data');
+        
+        $this->assertEquals($response->json('current_page'),2);
     }
 
     public function testShow()
