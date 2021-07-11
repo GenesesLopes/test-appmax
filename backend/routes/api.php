@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\EstoqueController;
 use App\Http\Controllers\ProdutoController;
+use App\Http\Controllers\UserContoller;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -16,6 +17,10 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::group(['prefix' => 'v1'], function(){
+    Route::group(['prefix' => 'auth'], function () {
+        Route::post('/login', [UserContoller::class, 'login']);
+        Route::post('/logout', [UserContoller::class, 'logout'])->middleware('apiJWT');
+    });
     Route::apiResource('produto', ProdutoController::class)
     ->parameters(['produto' => 'id'])
     ->whereNumber('id');
