@@ -40,7 +40,9 @@ class EstoqueTest extends TestCase
             ->count($qtd)
             ->for(
                 Produto::factory()->create()
-            )->create();
+            )->create([
+                'quantidade' => 100
+            ]);
     }
 
     private function getQuantidade(): int
@@ -115,6 +117,46 @@ class EstoqueTest extends TestCase
     }
 
     public function testErroTransactionAddMovimentacao()
+    {
+       $mock = $this->mockInterface->shouldReceive('add')
+            ->withAnyArgs()
+            ->andThrow(new ExceptionTest('Erro Provocado para Teste'))
+            ->getMock();
+        $this->estoqueRepository = new EstoqueRepository($mock);
+        
+        $newData = $this->data->merge([
+            'quantidade' => 2,
+            'acao' => 'Adicao',
+            'produto_id' => $this->estoque->first()->produto_id
+        ])->toArray();
+        try {
+            $this->estoqueRepository->add($newData);
+        } catch (ExceptionTest $e) {
+            $estoqueAtual = Estoque::first()->quantidade;
+            $this->assertEquals($estoqueAtual,$this->estoque->first()->quantidade);
+        }
+
+        $this->assertTrue(isset($e));
+    }
+
+    public function testSuccessRemove()
+    {
+        $data = [3, 4, 8, 14];
+        foreach ($data as $dataValue) {
+            $oldEstoque = Estoque::first();
+
+            $newData = $this->data->merge([
+                'quantidade' => $dataValue,
+                'acao' => 'Adicao',
+                'produto_id' => $oldEstoque->produto_id
+            ])->toArray();
+
+            $response = $this->estoqueRepository->remove($newData);
+            $this->assertEquals($oldEstoque->quantidade - $dataValue, $response->quantidade);
+        }
+    }
+
+    public function testErroTransactionRemoveMovimentacao()
     {
        $mock = $this->mockInterface->shouldReceive('add')
             ->withAnyArgs()
