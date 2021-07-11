@@ -4,6 +4,7 @@ namespace Tests\Unit\Http\Requests;
 
 use App\Http\Requests\EstoqueRequest;
 use App\Models\Produto;
+use App\Repositories\Contracts\IEstoque;
 use App\Repositories\Contracts\IProduto;
 use Faker\Factory;
 use Faker\Generator;
@@ -22,6 +23,8 @@ class EstoqueRequestUnitTest extends TestCase
     private Produto $produto;
     protected Generator $fake;    
     protected IProduto $produtoRepository;
+    protected IEstoque $estoqueRepository;
+    private int $quantidade;
 
 
     protected function instanceRequest(
@@ -32,6 +35,7 @@ class EstoqueRequestUnitTest extends TestCase
 
         $this->request = new EstoqueRequest(
             $this->produtoRepository,
+            $this->estoqueRepository,
             $query,
             $data
         );
@@ -56,12 +60,19 @@ class EstoqueRequestUnitTest extends TestCase
         );
     }
 
-    private function getQuantidade(): int
+    protected function mockEstoqueRepository(array $data = [])
     {
-        do {
-            $quantidade = $this->fake->numberBetween(-2, 4);
-        } while ($quantidade == 0);
-        return $quantidade;
+        $this->estoqueRepository = $this->mock(
+            IEstoque::class,
+            function (MockInterface $mock) use ($data) {
+                foreach ($data as $method => $return) {
+                    $mock->shouldReceive($method)
+                        ->withAnyArgs()
+                        ->andReturn($return)
+                        ->getMock();
+                }
+            }
+        );
     }
 
     protected function setUp(): void
@@ -74,12 +85,16 @@ class EstoqueRequestUnitTest extends TestCase
         $this->produto = Produto::factory()->make([
             'id' => $this->fake->randomDigitNotZero(),
         ]);
+        $this->quantidade = $this->fake->numberBetween(1, 4);
         $this->data = collect([
             'produto_id' => $this->produto->id,
-            'quantidade' =>  $this->getQuantidade()
+            'quantidade' =>  $this->quantidade
         ]);
         $this->mockProdutoRepository([
             'find' => $this->produto
+        ]);
+        $this->mockEstoqueRepository([
+            'countQuantidade' => $this->quantidade
         ]);
     }
 
@@ -119,15 +134,19 @@ class EstoqueRequestUnitTest extends TestCase
         }
     }
 
-    public function testProductIdZero()
+    public function testQuantityLessThanOrEqualToZero()
     {
-        $data = $this->data->merge([
-            'quantidade' => 0
-        ]);
-        $error = [
-            'quantidade' => 'A quantidade deve ser diferente de 0'
+        $data = [
+            0,
+            -1,
+            -4
         ];
-        $this->assertCustomInvalidation($data->toArray(),$error);
+        foreach($data as $dataValue){
+            $newData = $this->data->merge([
+                'quantidade' => $dataValue
+            ]);
+            $this->assertInvalidationFieldRule($newData->toArray(),'gt.numeric',['value' => 0]);
+        }
     }
 
     public function testIdProductNotExists()
@@ -146,6 +165,28 @@ class EstoqueRequestUnitTest extends TestCase
         $this->assertCustomInvalidation(
             $this->data->toArray(),
             $error,
+        );
+    }
+
+    public function testQuantityGreaterThanCurrent()
+    {
+        $newReturn = [
+            'countQuantidade' => $this->quantidade
+        ];
+
+        $this->mockEstoqueRepository(
+            $newReturn
+        );
+        $error = [
+            'quantidade' => 'Quantidade a ser removida deve ser igual ou superior à quantidade em estoque'
+        ];
+        $newData = $this->data->merge([
+            'quantidade' => $this->quantidade + 1
+        ])->toArray();
+        $this->assertCustomInvalidation(
+            $newData,
+            $error,
+            'put'
         );
     }
 }
