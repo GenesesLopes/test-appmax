@@ -41,7 +41,7 @@ class EstoqueRequestUnitTest extends TestCase
             ->validateResolved();
     }
 
-    protected function mockRepository(array $data = [])
+    protected function mockProdutoRepository(array $data = [])
     {
         $this->produtoRepository = $this->mock(
             IProduto::class,
@@ -78,7 +78,7 @@ class EstoqueRequestUnitTest extends TestCase
             'produto_id' => $this->produto->id,
             'quantidade' =>  $this->getQuantidade()
         ]);
-        $this->mockRepository([
+        $this->mockProdutoRepository([
             'find' => $this->produto
         ]);
     }
@@ -136,7 +136,7 @@ class EstoqueRequestUnitTest extends TestCase
             'find' => null,
         ];
 
-        $this->mockRepository(
+        $this->mockProdutoRepository(
             $newReturn
         );
         $error = [
