@@ -12,7 +12,6 @@ class MovimentacaoRepository implements IMovimentacao
 
     public function add(array $data): Model
     {
-        // dd($data);
         return Movimentacao::create([
             'produto_id' => $data['produto_id'],
             'quantidade' => $data['quantidade'],
