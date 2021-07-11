@@ -42,7 +42,7 @@ class EstoqueRequest extends FormRequest
     {
         $validator->after(function (Validator $validator) {
             if (!$validator->errors()->count()) {
-                if ($this->produto_id === 0) {
+                if ($this->quantidade === 0) {
                     $validator->errors()->add('quantidade', 'A quantidade deve ser diferente de 0');
                 }
                  else if ($this->iProduto->find($this->produto_id) == null) {

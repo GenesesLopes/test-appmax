@@ -122,7 +122,7 @@ class EstoqueRequestUnitTest extends TestCase
     public function testProductIdZero()
     {
         $data = $this->data->merge([
-            'produto_id' => 0
+            'quantidade' => 0
         ]);
         $error = [
             'quantidade' => 'A quantidade deve ser diferente de 0'
