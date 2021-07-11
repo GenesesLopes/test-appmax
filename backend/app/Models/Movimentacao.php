@@ -9,10 +9,12 @@ class Movimentacao extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['id','produtos_id','quantidade', 'acao', 'origem'];
+    protected $fillable = ['id','produto_id','quantidade', 'acao', 'origem'];
+
+    protected $table = 'movimentacoes';
 
     protected $casts = [
         'quantidade'=> 'integer',
-        'produtos_id' => 'integer'
+        'produto_id' => 'integer'
     ];
 }
