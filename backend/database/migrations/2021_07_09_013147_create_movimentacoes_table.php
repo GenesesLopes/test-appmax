@@ -15,7 +15,7 @@ class CreateMovimentacoesTable extends Migration
     {
         Schema::create('movimentacoes', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('produtos_id')->constrained('produtos');
+            $table->foreignId('produto_id')->constrained('produtos');
             $table->integer('quantidade');
             $table->string('acao',45);
             $table->string('origem',45);
