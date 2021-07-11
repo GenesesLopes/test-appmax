@@ -32,18 +32,15 @@ class EstoqueRepository implements IEstoque
 
     public function add(array $data): Estoque
     {
-        try {
-            \DB::beginTransaction();
-            $estoque = $this->findProduto($data);
-            $estoque->quantidade++;
+        $self = $this;
+        return \DB::transaction(function() use ($self, $data){
+            $estoque = $self->findProduto($data);
+            $estoque->quantidade += $data['quantidade'];
             $estoque->save();
             $data['produto_id'] = $estoque->id;
-            $this->iMovimentacao->add($data);
-            \DB::commit();
+            $self->iMovimentacao->add($data);
             return $estoque;
-        } catch (\Exception $th) {
-            \DB::rollBack();
-        }
+        });
     }
 
 }
