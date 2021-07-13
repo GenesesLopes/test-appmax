@@ -32,7 +32,6 @@ class UserServices
 
     protected function respondWithToken(string $token): array
     {
-        dump($token);
         return [
             'access_token' => $token,
             'token_type' => 'bearer',

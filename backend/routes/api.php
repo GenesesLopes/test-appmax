@@ -16,18 +16,20 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::group(['prefix' => 'v1'], function(){
+Route::group(['prefix' => 'v1'], function () {
     Route::group(['prefix' => 'auth'], function () {
-        Route::post('/login', [UserContoller::class, 'login']);
-        Route::post('/logout', [UserContoller::class, 'logout'])->middleware('apiJWT');
+        Route::post('/login', [UserContoller::class, 'login'])->name('auth.login');
+        Route::post('/logout', [UserContoller::class, 'logout'])->middleware('apiJWT')->name('auth.logout');
     });
-    Route::apiResource('produto', ProdutoController::class)
-    ->parameters(['produto' => 'id'])
-    ->whereNumber('id');
-    Route::get('estoque',[EstoqueController::class,'index'])->name('estoque.index');
-    Route::put('baixar-produtos',[EstoqueController::class,'update'])->name('estoque.baixa');
-    Route::post('adicionar-produtos',[EstoqueController::class,'store'])->name('estoque.adicao');
-    Route::get('relatorio',[EstoqueController::class,'relatorio'])->name('estoque.relatorio');
+    Route::group(['middleware' => ['apiJWT']], function () {
+        Route::apiResource('produto', ProdutoController::class)
+            ->parameters(['produto' => 'id'])
+            ->whereNumber('id');
+        Route::get('estoque', [EstoqueController::class, 'index'])->name('estoque.index');
+        Route::put('baixar-produtos', [EstoqueController::class, 'update'])->name('estoque.baixa');
+        Route::post('adicionar-produtos', [EstoqueController::class, 'store'])->name('estoque.adicao');
+        Route::get('relatorio', [EstoqueController::class, 'relatorio'])->name('estoque.relatorio');
+    });
 });
 
 // Route::middleware('auth:api')->get('/user', function (Request $request) {
