@@ -22,6 +22,7 @@ Route::group(['prefix' => 'v1'], function(){
         Route::post('/logout', [UserContoller::class, 'logout'])->middleware('apiJWT');
     });
     Route::apiResource('produto', ProdutoController::class)
+    ->middleware('apiJWT')
     ->parameters(['produto' => 'id'])
     ->whereNumber('id');
     Route::get('estoque',[EstoqueController::class,'index'])->name('estoque.index');

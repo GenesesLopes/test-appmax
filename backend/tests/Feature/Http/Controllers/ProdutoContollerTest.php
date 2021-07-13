@@ -6,12 +6,13 @@ use App\Models\Produto;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Illuminate\Support\Collection;
 use Tests\TestCase;
 
 class ProdutoContollerTest extends TestCase
 {
-    use DatabaseMigrations;
+    use DatabaseMigrations, WithoutMiddleware;
     
     private Produto $produto;
     private string $routeStore;
@@ -42,7 +43,7 @@ class ProdutoContollerTest extends TestCase
     public function testListIndex()
     {
         Produto::factory()->count(30)->create();
-        $response = $this->json('GET',route('produto.index')); 
+        $response = $this->json('GET',route('produto.index'));
         $response->assertStatus(200)
         ->assertJsonCount(15,'data')
         ->assertJsonStructure([
