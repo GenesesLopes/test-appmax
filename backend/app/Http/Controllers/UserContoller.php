@@ -25,5 +25,6 @@ class UserContoller extends Controller
     public function logout()
     {
         $this->userServices->logout();
+        return response()->noContent();
     }
 }
