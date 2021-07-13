@@ -16,6 +16,13 @@ class RelatorioRequest extends FormRequest
         return true;
     }
 
+    // protected function prepareForValidation()
+    // {
+    //     dump(
+    //         $this->start_date
+    //     );
+    // }
+
     /**
      * Get the validation rules that apply to the request.
      *

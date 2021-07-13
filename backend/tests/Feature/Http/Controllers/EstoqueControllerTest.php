@@ -117,7 +117,7 @@ class EstoqueControllerTest extends TestCase
         $response->assertStatus(200);
     }
 
-    public function testRelatorio()
+    public function testRelatorioSuccess()
     {
         $this->createMovimentos(3);
         $now = now()->format('Y-m-d');
@@ -130,5 +130,14 @@ class EstoqueControllerTest extends TestCase
         {
             $this->assertCount(3,$prod);
         }
+    }
+
+    public function testRelatorioErrorStatusCode()
+    {
+        $response = $this->json('get',route('estoque.relatorio',[
+            'start_date' => null,
+            'end_date' => null
+        ]));
+        $response->assertStatus(422);
     }
 }
