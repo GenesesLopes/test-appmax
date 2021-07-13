@@ -28,14 +28,14 @@ class EstoqueControllerTest extends TestCase
         'updated_at'
     ];
 
-    private function createEstoque(int $qtd = 1): void
+    private function createEstoque(int $qtd = 1, int $qtdProd = 100): void
     {
         $this->estoque = Estoque::factory()
             ->count($qtd)
             ->for(
                 Produto::factory()->create()
             )->create([
-                'quantidade' => 100
+                'quantidade' => $qtdProd
             ]);
     }
 
@@ -139,5 +139,21 @@ class EstoqueControllerTest extends TestCase
             'end_date' => null
         ]));
         $response->assertStatus(422);
+    }
+
+    public function testQuantidadeEstoque()
+    {
+        $this->runDatabaseMigrations();
+        $this->createEstoque(qtdProd:80);
+        $response = $this->json('get',route('estoque.baixo'));
+        $response->assertStatus(200);
+        $response->assertJsonStructure([
+            '*' => [
+                'id',
+                'nome',
+                'sku',
+                'total_estoque'
+            ]
+        ]);
     }
 }

@@ -28,6 +28,7 @@ Route::group(['prefix' => 'v1'], function () {
         Route::get('estoque', [EstoqueController::class, 'index'])->name('estoque.index');
         Route::put('baixar-produtos', [EstoqueController::class, 'update'])->name('estoque.baixa');
         Route::post('adicionar-produtos', [EstoqueController::class, 'store'])->name('estoque.adicao');
+        Route::get('estoque-baixo',[EstoqueController::class,'baixoEstoque'])->name('estoque.baixo');
         Route::get('relatorio', [EstoqueController::class, 'relatorio'])->name('estoque.relatorio');
     });
 });

@@ -34,14 +34,14 @@ class EstoqueTest extends TestCase
     private Produto $produto;
 
 
-    private function createEstoque(int $qtd = 1): void
+    private function createEstoque(int $qtd = 1, int $qtdProd = 100): void
     {
         $this->estoque = Estoque::factory()
             ->count($qtd)
             ->for(
                 Produto::factory()->create()
             )->create([
-                'quantidade' => 100
+                'quantidade' => $qtdProd
             ]);
     }
 
@@ -181,5 +181,14 @@ class EstoqueTest extends TestCase
         }
 
         $this->assertTrue(isset($e));
+    }
+
+    public function testQuantidadeEstoque()
+    {
+        $this->runDatabaseMigrations();
+        $this->createEstoque(1, 90);
+        $response = $this->estoqueRepository->QuantidadeEstoque();
+        $this->assertCount(1,$response->all());
+        $this->assertEquals(90,$response->first()->total_estoque);
     }
 }

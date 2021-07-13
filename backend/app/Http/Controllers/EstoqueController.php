@@ -57,4 +57,9 @@ class EstoqueController extends Controller
     {
         return $this->iMovimentacoesServices->relatorio($request->all());
     }
+
+    public function baixoEstoque()
+    {
+        return $this->estoqueRepository->QuantidadeEstoque();
+    }
 }
