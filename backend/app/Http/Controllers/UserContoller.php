@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\LoginRequest;
 use App\Services\UserServices;
 use Illuminate\Http\Request;
 
@@ -11,9 +12,9 @@ class UserContoller extends Controller
         public UserServices $userServices
     ) {
     }
-    public function login(Request $request)
+    public function login(LoginRequest $request)
     {
-        return $this->userServices->checkCredentials($request->all());
+        return $this->userServices->checkCredentials($request->validated());
     }
 
     public function refresh()
