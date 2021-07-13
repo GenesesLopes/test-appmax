@@ -8,12 +8,13 @@ use App\Models\Produto;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Illuminate\Support\Collection;
 use Tests\TestCase;
 
 class EstoqueControllerTest extends TestCase
 {
-    use DatabaseMigrations;
+    use DatabaseMigrations, WithoutMiddleware;
 
     protected Collection $data;
     protected Produto $produto;
@@ -119,9 +120,11 @@ class EstoqueControllerTest extends TestCase
     public function testRelatorio()
     {
         $this->createMovimentos(3);
+        $now = now()->format('Y-m-d');
+        
         $response = $this->json('get', route('estoque.relatorio', [
-            'start_date' => '2021-07-11',
-            'end_date' => '2021-07-11'
+            'start_date' => $now,
+            'end_date' => $now
         ]));
         foreach($response->json() as $prod)
         {
