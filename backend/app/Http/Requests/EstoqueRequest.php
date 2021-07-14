@@ -50,7 +50,7 @@ class EstoqueRequest extends FormRequest
                     if ($this->iProduto->find($this->produto_id) == null) {
                         $validator->errors()->add('produto_id', 'Produto não encontrado');
                     } else if ($this->isMethod('PUT')) { // Validação para baixa de produtos
-                        if ($this->iEstoque->countQuantidade($this->produto_id) < $this->quantidade) {
+                        if ($this->iEstoque->countQuantidadeProduto($this->produto_id) < $this->quantidade) {
                             $validator->errors()->add('quantidade', 'Quantidade a ser removida deve ser igual ou superior à quantidade em estoque');
                         }
                     }
