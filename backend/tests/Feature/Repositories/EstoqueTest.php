@@ -2,13 +2,9 @@
 
 namespace Tests\Feature\Repositories;
 
-use App\Exceptions\Tests\ExceptionTest;
 use App\Models\Estoque;
-use App\Models\Movimentacao;
 use App\Models\Produto;
-use App\Repositories\Contracts\IMovimentacao;
 use App\Repositories\Eloquent\EstoqueRepository;
-use App\Repositories\Eloquent\MovimentacaoRepository;
 use Faker\Factory;
 use Faker\Generator;
 use Illuminate\Database\Eloquent\Collection;
@@ -16,9 +12,7 @@ use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Collection as SupportCollection;
-use Mockery;
-use Mockery\LegacyMockInterface;
-use Mockery\MockInterface;
+
 use Tests\TestCase;
 use Tests\Traits\TestArrayIntersect;
 
@@ -28,7 +22,6 @@ class EstoqueTest extends TestCase
 
     private Generator $fakeData;
     private Estoque|Collection $estoque;
-    private MockInterface|LegacyMockInterface|IMovimentacao $mockInterface;
     private SupportCollection $data;
     private EstoqueRepository $estoqueRepository;
     private Produto $produto;
