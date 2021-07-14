@@ -51,8 +51,10 @@ class ProdutoRequest extends FormRequest
         $validator->after(function (Validator $validator){
             if(!$validator->errors()->count()){
                 if($this->isMethod('post') || $this->isMethod('put')){
-                    if($this->iProduto->findBySku($this->sku) !== null){
-                        $validator->errors()->add('sku', 'Sku já presente na aplicação');
+                    $produto = $this->iProduto->findBySku($this->sku);
+                    if( $produto !== null){
+                        if($this->isMethod('post') || $produto->id != $this->id)
+                            $validator->errors()->add('sku', 'Sku já presente na aplicação');
                     }
                 }
                 else if($this->isMethod('delete')){

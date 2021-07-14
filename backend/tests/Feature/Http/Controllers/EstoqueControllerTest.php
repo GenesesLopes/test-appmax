@@ -3,7 +3,6 @@
 namespace Tests\Feature\Http\Controllers;
 
 use App\Models\Estoque;
-use App\Models\Movimentacao;
 use App\Models\Produto;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -28,14 +27,14 @@ class EstoqueControllerTest extends TestCase
         'updated_at'
     ];
 
-    private function createEstoque(int $qtd = 1): void
+    private function createEstoque(int $qtd = 1, int $qtdProd = 100): void
     {
         $this->estoque = Estoque::factory()
             ->count($qtd)
             ->for(
                 Produto::factory()->create()
             )->create([
-                'quantidade' => 100
+                'quantidade' => $qtdProd
             ]);
     }
 
@@ -43,8 +42,8 @@ class EstoqueControllerTest extends TestCase
     {
 
         $quantidade = rand(1,3);
-        $acao = 'Adicao';
-
+        $acao = rand(0, 2) % 2 === 0 ? 'Adição' : 'Remoção';
+        
         Produto::factory()
             ->hasMovimentacao($qtd,[
                 'quantidade' => $quantidade,
@@ -117,7 +116,7 @@ class EstoqueControllerTest extends TestCase
         $response->assertStatus(200);
     }
 
-    public function testRelatorio()
+    public function testRelatorioSuccess()
     {
         $this->createMovimentos(3);
         $now = now()->format('Y-m-d');
@@ -130,5 +129,30 @@ class EstoqueControllerTest extends TestCase
         {
             $this->assertCount(3,$prod);
         }
+    }
+
+    public function testRelatorioErrorStatusCode()
+    {
+        $response = $this->json('get',route('estoque.relatorio',[
+            'start_date' => null,
+            'end_date' => null
+        ]));
+        $response->assertStatus(422);
+    }
+
+    public function testQuantidadeEstoque()
+    {
+        $this->runDatabaseMigrations();
+        $this->createEstoque(qtdProd:80);
+        $response = $this->json('get',route('estoque.baixo'));
+        $response->assertStatus(200);
+        $response->assertJsonStructure([
+            '*' => [
+                'id',
+                'nome',
+                'sku',
+                'total_estoque'
+            ]
+        ]);
     }
 }

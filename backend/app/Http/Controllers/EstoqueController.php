@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\EstoqueRequest;
+use App\Http\Requests\RelatorioRequest;
 use App\Models\Estoque;
 use App\Repositories\Contracts\IEstoque;
 use App\Services\Contracts\IEstoqueServices;
@@ -52,8 +53,13 @@ class EstoqueController extends Controller
         return response()->json($response->toArray());
     }
 
-    public function relatorio(Request $request)
+    public function relatorio(RelatorioRequest $request)
     {
         return $this->iMovimentacoesServices->relatorio($request->all());
+    }
+
+    public function baixoEstoque()
+    {
+        return $this->estoqueRepository->QuantidadeEstoque();
     }
 }

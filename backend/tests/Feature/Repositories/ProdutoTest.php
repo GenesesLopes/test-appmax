@@ -118,15 +118,6 @@ class ProdutoTest extends TestCase
         $this->assertEquals(count($data),$erros);
     }
 
-    public function testFieldUniqueSku()
-    {
-        $this->expectException(Unique::class);
-        
-        $this->produtoRepository->save([
-            'sku' => $this->fake->sku,
-            'nome' => $this->fakeData->colorName()
-        ]);
-    }
 
     public function testDelete()
     {

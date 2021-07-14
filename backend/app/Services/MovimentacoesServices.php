@@ -20,11 +20,11 @@ class MovimentacoesServices implements IMovimentacoesServices
     public function relatorio(array $data)
     {   
         $this->movimentos = $this->iMovimentacao->relatorioMovimentos($data);
-        
         $dataReturn = $this->movimentos->reduce(function($data, $movimentos){ 
-            if(!\Arr::has($data,$movimentos->sku))
-                $data[$movimentos->sku] = [];
-            array_push($data[$movimentos->sku],$movimentos);
+            $date = date('Y-m-d',strtotime($movimentos->updated_at));
+            if(!\Arr::has($data,$date))
+                $data[$date] = [];
+            array_push($data[$date],$movimentos);
             return $data;
         },[]);
         return $dataReturn;
