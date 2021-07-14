@@ -44,6 +44,13 @@ class EstoqueServices implements IEstoqueServices
 
     public function relatorio(array $data): array
     {   
+
+        if(!\Arr::has($data,[
+            'start_date',
+            'end_date'
+        ]))
+            throw new Information("É necessário inserir informações de start_date e end_date", 422);
+            
         /** @var Collection */
         $relatorio = $this->iEstoque->relatorioMovimentos($data);
         $dataReturn = $relatorio->reduce(function($data, $movimentos){ 
