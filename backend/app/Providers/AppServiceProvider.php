@@ -3,15 +3,11 @@
 namespace App\Providers;
 
 use App\Repositories\Contracts\IEstoque;
-use App\Repositories\Contracts\IMovimentacao;
 use App\Repositories\Contracts\IProduto;
 use App\Repositories\Eloquent\EstoqueRepository;
-use App\Repositories\Eloquent\MovimentacaoRepository;
 use App\Repositories\Eloquent\ProdutoRepository;
 use App\Services\Contracts\IEstoqueServices;
-use App\Services\Contracts\IMovimentacoesServices;
 use App\Services\EstoqueServices;
-use App\Services\MovimentacoesServices;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -29,11 +25,6 @@ class AppServiceProvider extends ServiceProvider
         );
 
         $this->app->bind(
-            IMovimentacao::class,
-            MovimentacaoRepository::class
-        );
-
-        $this->app->bind(
             IEstoque::class,
             EstoqueRepository::class
         );
@@ -43,10 +34,6 @@ class AppServiceProvider extends ServiceProvider
             EstoqueServices::class
         );
 
-        $this->app->bind(
-            IMovimentacoesServices::class,
-            MovimentacoesServices::class
-        );
     }
 
     /**
