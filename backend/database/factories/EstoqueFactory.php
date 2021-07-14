@@ -21,6 +21,7 @@ class EstoqueFactory extends Factory
      */
     public function definition()
     {
+        
         return [
             'produto_id' => md5(uniqid()),
             'quantidade' => rand(1, 9),

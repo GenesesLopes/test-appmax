@@ -8,4 +8,6 @@ use App\Models\Estoque;
 interface IEstoqueServices
 {
     public function estoque(array $data): Estoque;
+
+    public function relatorio(array $data): array;
 }
