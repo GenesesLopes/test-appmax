@@ -55,8 +55,15 @@ class EstoqueRepository implements IEstoque
         $self = $this;
         return \DB::transaction(function() use ($self, $data){
             $estoque = $self->findProduto($data);
-            $estoque->quantidade -= $data['quantidade'];
-            $estoque->save();
+            if($estoque === null){
+                $estoque = Estoque::create([
+                    'produto_id' => $data['produto_id'],
+                    'quantidade' => $data['quantidade']
+                ]);
+            }else{
+                $estoque->quantidade - $data['quantidade'] <= 0 ? $estoque->quantidade = 0 : $estoque->quantidade -= $data['quantidade'];
+                $estoque->save();
+            }
             $data['produto_id'] = $estoque->id;
             $self->iMovimentacao->add($data);
             return $estoque;

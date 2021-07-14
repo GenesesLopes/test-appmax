@@ -28,10 +28,10 @@ class EstoqueServices implements IEstoqueServices
         $data['httpHost'] == env('APP_URL_FRONT') ? $data['origem'] = 'sistema' : $data['origem'] = 'API';
         
         if($method == 'POST'){
-            $data['acao'] = 'Adicao';
+            $data['acao'] = 'Adição';
             return $this->iEstoque->add($data);
         }
-        $data['acao'] = 'Remocao';
+        $data['acao'] = 'Remoção';
         return $this->iEstoque->remove($data);
     }
 }

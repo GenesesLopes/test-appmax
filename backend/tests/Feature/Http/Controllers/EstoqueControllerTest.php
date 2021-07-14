@@ -3,7 +3,6 @@
 namespace Tests\Feature\Http\Controllers;
 
 use App\Models\Estoque;
-use App\Models\Movimentacao;
 use App\Models\Produto;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -43,8 +42,8 @@ class EstoqueControllerTest extends TestCase
     {
 
         $quantidade = rand(1,3);
-        $acao = 'Adicao';
-
+        $acao = rand(0, 2) % 2 === 0 ? 'Adição' : 'Remoção';
+        
         Produto::factory()
             ->hasMovimentacao($qtd,[
                 'quantidade' => $quantidade,
