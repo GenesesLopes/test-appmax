@@ -48,17 +48,25 @@ class ProdutoRepository implements IProduto
             
         }
         try {
+            /** @var Produto|null */
+            $produto = Produto::withTrashed()
+                ->where('sku',$data['sku'])
+                ->first();
+            if($produto != null){
+                $produto->restore();
+                return $produto;
+            }
             return Produto::updateOrCreate(
                 ['id' => $id],
                 $data
             );
         } catch (\PDOException $pdoE) {
             $code = $pdoE->errorInfo[1];
-            // dump($pdoE);
             match ($code) {
                 1048 => throw new Nullable($pdoE->errorInfo[2], 422),
                 1062 => throw new Unique($pdoE->errorInfo[2], 422),
-                1364 => throw new Nullable($pdoE->errorInfo[2], 422)
+                1364 => throw new Nullable($pdoE->errorInfo[2], 422),
+                'default' => $pdoE
             };
         }
     }
