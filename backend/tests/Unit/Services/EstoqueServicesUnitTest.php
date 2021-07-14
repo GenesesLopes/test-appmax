@@ -71,7 +71,7 @@ class EstoqueServicesUnitTest extends TestCase
         $this->dataRelatorio = collect($data);
         
         $this->mockEstoqueRepository([
-            'countQuantidade' => $this->data->get('quantidade'),
+            'countQuantidadeProduto' => $this->data->get('quantidade'),
             'persistence' => Estoque::factory()->makeOne(),
             'relatorioMovimentos' => $this->dataRelatorio
         ]);
