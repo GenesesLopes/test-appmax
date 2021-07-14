@@ -7,5 +7,5 @@ use App\Models\Estoque;
 
 interface IEstoqueServices
 {
-    public function movimentacao(array $data): Estoque;
+    public function estoque(array $data): Estoque;
 }

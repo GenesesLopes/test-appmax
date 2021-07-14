@@ -2,11 +2,11 @@
 
 namespace Tests\Unit\Services;
 
+use App\Exceptions\Utils\Information;
+use App\Exceptions\Utils\InsufficientQuantity;
 use App\Models\Estoque;
 use App\Repositories\Contracts\IEstoque;
 use App\Services\EstoqueServices;
-use Faker\Factory;
-use Faker\Generator;
 use Illuminate\Support\Collection;
 use Mockery\MockInterface;
 use Tests\TestCase;
@@ -17,7 +17,6 @@ class EstoqueServicesUnitTest extends TestCase
     protected EstoqueServices $estoqueServices;
     protected array $methods;
     protected Collection $data;
-    protected Generator $fake;
 
     protected function mockEstoqueRepository(array $data = [])
     {
@@ -32,6 +31,7 @@ class EstoqueServicesUnitTest extends TestCase
                 }
             }
         );
+        $this->estoqueServices = new EstoqueServices($this->estoqueRepository);
     }
 
     protected function setUp(): void
@@ -47,12 +47,8 @@ class EstoqueServicesUnitTest extends TestCase
             'countQuantidade' => $this->data->get('quantidade'),
             'persistence' => Estoque::factory()->makeOne()
         ]);
-        $this->estoqueServices = new EstoqueServices($this->estoqueRepository);
-        $this->methods = ['post', 'put'];
-        $this->fake = Factory::create(
-            \Config::get('app.faker_locale')
-        );
         
+        $this->methods = ['post', 'put'];       
         
     }
 
@@ -62,15 +58,27 @@ class EstoqueServicesUnitTest extends TestCase
             $newData = $this->data->merge([
                 'method' => $method
             ])->toArray();
-            $response = $this->estoqueServices->movimentacao($newData);
+            $response = $this->estoqueServices->estoque($newData);
             $this->assertInstanceOf(Estoque::class, $response);
         }
     }
 
-    public function testException()
+    public function testExceptionInformation()
     {
-        $this->expectException(\Exception::class);
+        $this->expectException(Information::class);
         $data = [];
-        $this->estoqueServices->movimentacao($data);
+        $this->estoqueServices->estoque($data);
     }
+
+    public function testExceptionInsufficientQuantity()
+    {
+        $this->expectException(InsufficientQuantity::class);
+        $data = $this->data->merge([
+            'method' => 'put',
+            'quantidade' => $this->data->get('quantidade') + 1
+        ])->toArray();
+       
+        $this->estoqueServices->estoque($data);
+    }
+
 }
