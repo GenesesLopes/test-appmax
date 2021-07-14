@@ -25,7 +25,9 @@ class EstoqueServices implements IEstoqueServices
         ]))
             throw new Exception("É necessário inserir informações de metodo e httpPost");
         $method = strtoupper($data['method']);
+        // Validação de origem da requisição
         $data['httpHost'] == env('APP_URL_FRONT') ? $data['origem'] = 'sistema' : $data['origem'] = 'API';
+        // Validação da ação
         $method == 'POST' ? $data['acao'] = 'Adição' : $data['acao'] = 'Remoção';
         /** @var Estoque */
         $estoque = new Estoque($data);
