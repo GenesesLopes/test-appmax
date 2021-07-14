@@ -16,7 +16,6 @@ use Tests\TestCase;
 
 class ProdutoTest extends TestCase
 {
-
     use DatabaseMigrations;
 
     private ProdutoRepository $produtoRepository;
