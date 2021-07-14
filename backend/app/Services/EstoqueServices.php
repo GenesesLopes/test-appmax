@@ -26,12 +26,14 @@ class EstoqueServices implements IEstoqueServices
             throw new Exception("É necessário inserir informações de metodo e httpPost");
         $method = strtoupper($data['method']);
         $data['httpHost'] == env('APP_URL_FRONT') ? $data['origem'] = 'sistema' : $data['origem'] = 'API';
-        
-        if($method == 'POST'){
-            $data['acao'] = 'Adição';
-            return $this->iEstoque->add($data);
+        $method == 'POST' ? $data['acao'] = 'Adição' : $data['acao'] = 'Remoção';
+        /** @var Estoque */
+        $estoque = new Estoque($data);
+        //Validação de estoque negativo
+        if ($data['acao'] == 'Remoção' && $this->iEstoque->countQuantidade($data['produto_id']) - $data['quantidade'] < 0) {
+            throw new Exception("Quantidade a ser removida deve ser igual ou superior à quantidade em estoque", 422);
         }
-        $data['acao'] = 'Remoção';
-        return $this->iEstoque->remove($data);
+        $estoque->quantidade = $data['quantidade'];
+        return $this->iEstoque->persistence($estoque);
     }
 }

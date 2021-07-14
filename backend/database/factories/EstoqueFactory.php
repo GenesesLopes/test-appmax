@@ -23,7 +23,9 @@ class EstoqueFactory extends Factory
     {
         return [
             'produto_id' => md5(uniqid()),
-            'quantidade' => $this->faker->randomNumber(1)
+            'quantidade' => rand(1, 9),
+            'acao' => rand(0, 2) % 2 === 0 ? 'Adição' : 'Remoção',
+            'origem' => rand(0, 2) % 2 === 0 ? 'Sistema' : 'Api' 
         ];
     }
 }

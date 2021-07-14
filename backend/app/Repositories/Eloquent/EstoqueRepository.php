@@ -5,71 +5,29 @@ declare (strict_types = 1);
 namespace App\Repositories\Eloquent;
 
 use App\Models\Estoque;
-use App\Models\Movimentacao;
 use App\Repositories\Contracts\IEstoque;
-use App\Repositories\Contracts\IMovimentacao;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Collection as SupportCollection;
+use Illuminate\Support\Collection;
 
 class EstoqueRepository implements IEstoque
 {
 
-    public function __construct(
-        public IMovimentacao $iMovimentacao
-    )
+    public function create(array $data): Estoque
     {
+        return Estoque::create($data);
     }
 
-    public function findProduto(array $data): ?Estoque
+    public function findProduto(int $id_produto): ?Estoque
     {
-        $estoque = Estoque::where('produto_id',$data['produto_id'])->first();
-        if($estoque == null)
-            return null;
+        return Estoque::where('produto_id',$id_produto)->first();
+    }
+
+    public function persistence(Estoque $estoque): Estoque
+    {
+        $estoque->save();
+        $estoque->refresh();
         return $estoque;
     }
-
-    public function add(array $data): Estoque
-    {
-        $self = $this;
-        return \DB::transaction(function() use ($self, $data){
-            $estoque = $self->findProduto($data);
-            if($estoque === null){
-                $estoque = Estoque::create([
-                    'produto_id' => $data['produto_id'],
-                    'quantidade' => $data['quantidade']
-                ]);
-            }else{
-                $estoque->quantidade += $data['quantidade'];
-                $estoque->save();
-            }            
-            $data['produto_id'] = $estoque->id;
-            $self->iMovimentacao->add($data);
-            return $estoque;
-        });
-    }
-
-    public function remove(array $data): Estoque
-    {
-        $self = $this;
-        return \DB::transaction(function() use ($self, $data){
-            $estoque = $self->findProduto($data);
-            if($estoque === null){
-                $estoque = Estoque::create([
-                    'produto_id' => $data['produto_id'],
-                    'quantidade' => $data['quantidade']
-                ]);
-            }else{
-                $estoque->quantidade - $data['quantidade'] <= 0 ? $estoque->quantidade = 0 : $estoque->quantidade -= $data['quantidade'];
-                $estoque->save();
-            }
-            $data['produto_id'] = $estoque->id;
-            $self->iMovimentacao->add($data);
-            return $estoque;
-        });
-    }
-
     public function countQuantidade(int $idProduto): int
     {
         return (int)Estoque::where('produto_id',$idProduto)->sum('quantidade');
@@ -80,11 +38,11 @@ class EstoqueRepository implements IEstoque
         return Estoque::paginate($perPage, page: $page);
     }
 
-    public function QuantidadeEstoque(): SupportCollection
+    public function QuantidadeEstoque(): Collection
     {
         return \DB::table('estoques')
             ->join('produtos','estoques.produto_id','=','produtos.id')
-            ->whereNull(['estoques.deleted_at','produtos.deleted_at'])
+            ->whereNull('produtos.deleted_at')
             ->select([
                 'produtos.id',
                 'produtos.nome',
