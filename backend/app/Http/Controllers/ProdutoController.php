@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProdutoRequest;
-use App\Models\Produto;
 use App\Repositories\Contracts\IProduto;
 
 class ProdutoController extends Controller

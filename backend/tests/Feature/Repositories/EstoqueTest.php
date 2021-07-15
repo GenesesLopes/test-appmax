@@ -72,6 +72,7 @@ class EstoqueTest extends TestCase
         $estoque = new Estoque($this->data->toArray());
         $response = $this->estoqueRepository->persistence($estoque);
         $this->assertInstanceOf(Estoque::class,$response);
+        // dump($response->getAttributes(),$this->data->toArray());
         $this->assertArrayIntersect(
             $this->data->toArray(),
             $response->getAttributes()
@@ -131,8 +132,8 @@ class EstoqueTest extends TestCase
         $response = $this->estoqueRepository->QuantidadeEstoqueBaixa();
         $adicao = $response->filter(fn($data) => $data->acao == 'Adição')->first();
         $remocao = $response->filter(fn($data) => $data->acao == 'Remoção')->first();
-        $this->assertEquals(5,$adicao->total_estoque);
-        $this->assertEquals(1,$remocao->total_estoque);
+        $this->assertEquals(5,$adicao->total_somado);
+        $this->assertEquals(1,$remocao->total_somado);
     }
 
     public function testRelatorio()

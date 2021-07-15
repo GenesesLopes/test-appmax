@@ -17,40 +17,22 @@ class EstoqueControllerTest extends TestCase
 
     protected Collection $data;
     protected Produto $produto;
-    private Estoque|Collection $estoque;
+    private Produto|Collection $estoqueProduto;
 
     private $fieldSerialized = [
         'id',
-        'produto_id',
-        'quantidade',
-        'created_at',
-        'updated_at'
+        'nome',
+        'sku',
+        'total_estoque'
     ];
 
     private function createEstoque(int $qtd = 1, int $qtdProd = 100): void
     {
-        $this->estoque = Estoque::factory()
+        $this->estoqueProduto = Produto::factory()
             ->count($qtd)
-            ->for(
-                Produto::factory()->create()
-            )->create([
-                'quantidade' => $qtdProd
-            ]);
-    }
-
-    private function createMovimentos(int $qtd = 1)
-    {
-
-        $quantidade = rand(1,3);
-        $acao = rand(0, 2) % 2 === 0 ? 'Adição' : 'Remoção';
-        
-        Produto::factory()
-            ->hasMovimentacao($qtd,[
-                'quantidade' => $quantidade,
-                'acao' => $acao
-            ])
-            ->hasEstoque($qtd,[
-                'quantidade' => $quantidade
+            ->hasEstoque($qtd, [
+                'quantidade' => $qtdProd,
+                'acao' => 'Adição'
             ])
             ->create();
     }
@@ -59,6 +41,7 @@ class EstoqueControllerTest extends TestCase
     {
         parent::setUp();
         $this->createEstoque();
+
         $this->produto = Produto::factory()->create();
         $this->data = collect([
             'produto_id' => $this->produto->id,
@@ -71,7 +54,6 @@ class EstoqueControllerTest extends TestCase
         $this->createEstoque(30);
         $response = $this->json('GET', route('estoque.index'));
         $response->assertStatus(200)
-            ->assertJsonCount(15, 'data')
             ->assertJsonStructure([
                 'data' => [
                     '*' => $this->fieldSerialized
@@ -92,6 +74,8 @@ class EstoqueControllerTest extends TestCase
     public function testSuccessAdd()
     {
         $response = $this->json('post', route('estoque.adicao'), $this->data->toArray());
+        // dump($this->data->toArray());
+        // dd($response->json());
         $response->assertStatus(200);
         $fields = $this->data->keys();
         foreach ($fields as $field) {
@@ -109,7 +93,7 @@ class EstoqueControllerTest extends TestCase
     public function testDownEstoqueSuccess()
     {
         $newData = $this->data->merge([
-            'produto_id' => $this->estoque->first()->produto_id,
+            'produto_id' => $this->estoqueProduto->first()->id,
             'quantidade' => 4
         ]);
         $response = $this->json('put', route('estoque.baixa'), $newData->toArray());
@@ -118,22 +102,35 @@ class EstoqueControllerTest extends TestCase
 
     public function testRelatorioSuccess()
     {
-        $this->createMovimentos(3);
+        $this->createEstoque(3);
         $now = now()->format('Y-m-d');
-        
+
         $response = $this->json('get', route('estoque.relatorio', [
             'start_date' => $now,
             'end_date' => $now
         ]));
-        foreach($response->json() as $prod)
-        {
-            $this->assertCount(3,$prod);
+        $response->assertStatus(200);
+        $response->assertJsonStructure([
+            $now => [
+                '*' => [
+                    'id',
+                    'quantidade',
+                    'acao',
+                    'origem',
+                    'updated_at',
+                    'nome',
+                    'sku'
+                ]
+            ]
+        ]);
+        foreach ($response->json() as $prod) {
+            $this->assertCount(10, $prod);
         }
     }
 
     public function testRelatorioErrorStatusCode()
     {
-        $response = $this->json('get',route('estoque.relatorio',[
+        $response = $this->json('get', route('estoque.relatorio', [
             'start_date' => null,
             'end_date' => null
         ]));
@@ -143,8 +140,8 @@ class EstoqueControllerTest extends TestCase
     public function testQuantidadeEstoque()
     {
         $this->runDatabaseMigrations();
-        $this->createEstoque(qtdProd:80);
-        $response = $this->json('get',route('estoque.baixo'));
+        $this->createEstoque(qtdProd: 80);
+        $response = $this->json('get', route('estoque.baixo'));
         $response->assertStatus(200);
         $response->assertJsonStructure([
             '*' => [

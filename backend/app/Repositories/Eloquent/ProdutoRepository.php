@@ -54,6 +54,7 @@ class ProdutoRepository implements IProduto
                 ->first();
             if($produto != null){
                 $produto->restore();
+                $produto->update($data);
                 return $produto;
             }
             return Produto::updateOrCreate(

@@ -94,7 +94,7 @@ class EstoqueRequestUnitTest extends TestCase
             'find' => $this->produto
         ]);
         $this->mockEstoqueRepository([
-            'countQuantidade' => $this->quantidade
+            'countQuantidadeProduto' => $this->quantidade
         ]);
     }
 
@@ -171,7 +171,7 @@ class EstoqueRequestUnitTest extends TestCase
     public function testQuantityGreaterThanCurrent()
     {
         $newReturn = [
-            'countQuantidade' => $this->quantidade
+            'countQuantidadeProduto' => $this->quantidade
         ];
 
         $this->mockEstoqueRepository(
