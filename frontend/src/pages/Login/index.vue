@@ -40,6 +40,7 @@
                                 <button
                                     class="btn btn-lg btn-primary btn-block text-uppercase"
                                     type="submit"
+                                    :disabled="loading"
                                 >
                                     Entrar
                                 </button>
@@ -58,7 +59,7 @@ import {
     minLength,
     maxLength
 } from "vuelidate/lib/validators";
-// import { mapState } from "vuex";
+import { mapState } from "vuex";
 export default {
     mounted() {
         document.querySelector("body").style.background = "#acbbcc80";
@@ -68,7 +69,8 @@ export default {
             form: {
                 email: null,
                 senha: null
-            }
+            },
+            loading: false
         };
     },
     methods: {
@@ -111,22 +113,29 @@ export default {
                     });
                 }
             } else {
-                console.log(this.form);
-                // this.$store.commit("SET_ERROR", {
-                //     login: []
-                // });
-                // await this.$store.dispatch("login", this.form);
-                // if (this.error.length) {
-                //   this.error.map((item) => {
-                //     this.$bvToast.toast(item, {
-                //       title: "Erro no Login",
-                //       variant: "danger",
-                //       solid: true,
-                //     });
-                //   });
-                // } else {
-                //   this.$router.push("/admin");
-                // }
+                this.$store.commit("SET_ERROR_USER", {
+                    login: []
+                });
+                await this.$store.dispatch("login", this.form);
+
+                try {
+                    this.loading = true;
+                    if (this.error.length) {
+                        this.error.map(item => {
+                            this.$bvToast.toast(item, {
+                                title: "Erro no Login",
+                                variant: "danger",
+                                solid: true
+                            });
+                        });
+                    } else {
+                        // this.$router.push("/admin");
+                    }
+                } catch (error) {
+                    console.error(error);
+                } finally {
+                    this.loading = false;
+                }
             }
         }
     },
@@ -142,6 +151,11 @@ export default {
                 maxLength: maxLength(8)
             }
         }
+    },
+    computed: {
+        ...mapState({
+            error: state => state.user.error.login
+        })
     }
 };
 </script>

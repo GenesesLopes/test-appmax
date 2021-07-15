@@ -17,10 +17,12 @@ Vue.use(BootstrapVue);
 Vue.use(IconsPlugin);
 
 import router from "./routes";
+import store from './store';
 
 Vue.config.productionTip = false
 
 new Vue({
   render: h => h(App),
-  router
+  router,
+  store
 }).$mount('#app')
