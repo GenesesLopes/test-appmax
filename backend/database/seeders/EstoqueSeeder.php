@@ -20,7 +20,7 @@ class EstoqueSeeder extends Seeder
             ->count(3)
             ->state(new Sequence([
                 'quantidade' => rand(1, 3),
-                'acao' =>  rand(0, 2) % 2 === 0 ? 'Adição' : 'Remoção',
+                'acao' =>  'Adição',
                 'origem' => rand(0, 2) % 2 === 0 ? "Sistema" : 'api'
             ]))
             ->for(Produto::factory()->create())
