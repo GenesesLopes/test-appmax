@@ -129,7 +129,7 @@ export default {
                             });
                         });
                     } else {
-                        // this.$router.push("/admin");
+                        this.$router.push("/admin");
                     }
                 } catch (error) {
                     console.error(error);
