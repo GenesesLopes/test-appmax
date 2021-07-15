@@ -2,21 +2,21 @@
 
 namespace Tests\Unit\Models;
 
-use App\Models\Movimentacao;
+use App\Models\Estoque;
 use Tests\TestCase;
 use Tests\Traits\TestArrayIntersect;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class MovimentacaoUniTest extends TestCase
+class EstoqueUniTest extends TestCase
 {
     use TestArrayIntersect;
 
-    private Movimentacao $movimentacao;
+    private Estoque $Estoque;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->movimentacao = new Movimentacao();
+        $this->estoque = new Estoque();
         \DB::disconnect();        
     }
 
@@ -29,7 +29,7 @@ class MovimentacaoUniTest extends TestCase
             'acao',
             'origem'
         ];
-        $fillable = $this->movimentacao->getFillable();
+        $fillable = $this->estoque->getFillable();
         $this->assertEquals($fillables,$fillable);
     }
 
@@ -39,8 +39,8 @@ class MovimentacaoUniTest extends TestCase
             HasFactory::class
         ];
 
-        $movimentacaoTraits = array_keys(class_uses(Movimentacao::class));
-        $this->assertEquals($traits, $movimentacaoTraits);
+        $EstoqueTraits = array_keys(class_uses(Estoque::class));
+        $this->assertEquals($traits, $EstoqueTraits);
     }
 
     public function testCasts()
@@ -49,7 +49,7 @@ class MovimentacaoUniTest extends TestCase
             'quantidade'=> 'integer',
             'produto_id' => 'integer'
         ];
-        $getCasts = $this->movimentacao->getCasts();
+        $getCasts = $this->estoque->getCasts();
 
         $this->assertArrayIntersect(
             $casts,
@@ -62,18 +62,18 @@ class MovimentacaoUniTest extends TestCase
     public function testIncrementing()
     {
 
-        $this->assertTrue($this->movimentacao->incrementing);
+        $this->assertTrue($this->estoque->incrementing);
     }
 
     public function testKeyTypes()
     {
         $keyType = 'int';
-        $this->assertEquals($keyType, $this->movimentacao->getKeyType());
+        $this->assertEquals($keyType, $this->estoque->getKeyType());
     }
 
     public function testTableName()
     {
-        $tableName = 'movimentacoes';
-        $this->assertEquals($tableName,$this->movimentacao->getTable());
+        $tableName = 'estoques';
+        $this->assertEquals($tableName,$this->estoque->getTable());
     }
 }

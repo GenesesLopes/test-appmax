@@ -2,13 +2,9 @@
 
 namespace Tests\Feature\Repositories;
 
-use App\Exceptions\Tests\ExceptionTest;
 use App\Models\Estoque;
-use App\Models\Movimentacao;
 use App\Models\Produto;
-use App\Repositories\Contracts\IMovimentacao;
 use App\Repositories\Eloquent\EstoqueRepository;
-use App\Repositories\Eloquent\MovimentacaoRepository;
 use Faker\Factory;
 use Faker\Generator;
 use Illuminate\Database\Eloquent\Collection;
@@ -16,9 +12,7 @@ use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Collection as SupportCollection;
-use Mockery;
-use Mockery\LegacyMockInterface;
-use Mockery\MockInterface;
+
 use Tests\TestCase;
 use Tests\Traits\TestArrayIntersect;
 
@@ -28,56 +22,44 @@ class EstoqueTest extends TestCase
 
     private Generator $fakeData;
     private Estoque|Collection $estoque;
-    private MockInterface|LegacyMockInterface|IMovimentacao $mockInterface;
     private SupportCollection $data;
     private EstoqueRepository $estoqueRepository;
     private Produto $produto;
 
 
-    private function createEstoque(int $qtd = 1, int $qtdProd = 100): void
-    {
-        $this->estoque = Estoque::factory()
-            ->count($qtd)
-            ->for(
-                Produto::factory()->create()
-            )->create([
-                'quantidade' => $qtdProd
-            ]);
+    private function createEstoque(
+        array $dataEstoque = null
+    ): void {
+        if($dataEstoque == null)
+            $dataEstoque = $this->data->toArray();
+        $this->estoque = Estoque::factory()->create($dataEstoque);
     }
 
-    private function getQuantidade(): int
-    {
-        do {
-            $quantidade = $this->fakeData->numberBetween(-2, 4);
-        } while ($quantidade == 0);
-        return $quantidade;
-    }
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->mockInterface = Mockery::mock(IMovimentacao::class);
-        $resClass = new \ReflectionClass(EstoqueRepository::class);
-        $newInstace = $resClass->newInstance(new MovimentacaoRepository);
-        $this->estoqueRepository = $newInstace;
-        $this->createEstoque();
+        // $this->mockInterface = Mockery::mock(IMovimentacao::class);
+        // $resClass = new \ReflectionClass(EstoqueRepository::class);
+        // $newInstace = $resClass->newInstance(new MovimentacaoRepository);
         $this->fakeData = Factory::create(
             \Config::get('app.faker_locale')
         );
-        $quantidade = $this->fakeData->numberBetween(1, 4);
+        $this->estoqueRepository = new EstoqueRepository;
         $this->produto = Produto::factory()->create();
-        $this->data = collect([
-            'produto_id' => $this->produto->id,
-            'quantidade' => $quantidade,
-            'acao' => $quantidade < 0 ? 'Remocao' : 'Adicao',
-            'origem' => rand(0, 5) % 2 == 0 ? 'sistema' : 'api'
+        $fakeEstoque = Estoque::factory()->makeOne()->toArray();
+        $this->data = collect($fakeEstoque)->merge([
+            'produto_id' => $this->produto->id
         ]);
+        $this->createEstoque();
+        
     }
 
     public function testFindProdutoEstoque()
     {
+        /** @var Estoque */
         $firstEstoque = $this->estoque->first();
-        $response = $this->estoqueRepository->findProduto($firstEstoque->getAttributes());
+        $response = $this->estoqueRepository->findProduto($firstEstoque->id);
         $this->assertArrayIntersect(
             $firstEstoque->getAttributes(),
             $response->getAttributes(),
@@ -85,110 +67,113 @@ class EstoqueTest extends TestCase
         );
     }
 
-    public function testFindOrCreateProdutoEstoque()
+    public function testPersistenceSuccess()
     {
-        $data = [
-            'produto_id' => Produto::factory()->create()->id,
-            'quantidade' => $this->fakeData->randomNumber(2)
-        ];
-
-        $response = $this->estoqueRepository->findProduto($data);
-        $this->assertNull($response);
-        $data['produto_id'] = $this->estoque->first()->produto_id;
-        $response = $this->estoqueRepository->findProduto($data);
-        
+        $estoque = new Estoque($this->data->toArray());
+        $response = $this->estoqueRepository->persistence($estoque);
+        $this->assertInstanceOf(Estoque::class,$response);
+        // dump($response->getAttributes(),$this->data->toArray());
         $this->assertArrayIntersect(
-            $data,
+            $this->data->toArray(),
             $response->getAttributes()
         );
     }
 
-    public function testSuccessAdd()
+    public function testCountQuantidade()
     {
-        $data = [3, 4, 8, 14];
-        foreach ($data as $dataValue) {
-            $oldEstoque = Estoque::first();
-
-            $newData = $this->data->merge([
-                'quantidade' => $dataValue,
-                'acao' => 'Adicao',
-                'produto_id' => $oldEstoque->produto_id
-            ])->toArray();
-
-            $response = $this->estoqueRepository->add($newData);
-            $this->assertEquals($oldEstoque->quantidade + $dataValue, $response->quantidade);
+        $this->estoque->delete();
+        $data = [
+            [
+                'quantidade' => 2,
+                'acao' => 'Adição'
+            ],
+            [
+                'quantidade' => 3,
+                'acao' => 'Adição'
+            ],
+            [
+                'quantidade' => 1,
+                'acao' => 'Remoção'
+            ],
+        ];
+        foreach($data as $value){
+            $newData = $this->data->merge($value)->toArray();
+            $this->createEstoque($newData);
         }
+        $this->assertEquals(
+            4,
+            $this->estoqueRepository->countQuantidadeProduto($this->produto->id)
+        );
     }
 
-    public function testErroTransactionAddMovimentacao()
+    public function testCountQuantidadeBaixa()
     {
-       $mock = $this->mockInterface->shouldReceive('add')
-            ->withAnyArgs()
-            ->andThrow(new ExceptionTest('Erro Provocado para Teste'))
-            ->getMock();
-        $this->estoqueRepository = new EstoqueRepository($mock);
-        
-        $newData = $this->data->merge([
-            'quantidade' => 2,
-            'acao' => 'Adicao',
-            'produto_id' => $this->estoque->first()->produto_id
-        ])->toArray();
-        try {
-            $this->estoqueRepository->add($newData);
-        } catch (ExceptionTest $e) {
-            $estoqueAtual = Estoque::first()->quantidade;
-            $this->assertEquals($estoqueAtual,$this->estoque->first()->quantidade);
+        $this->estoque->delete();
+        $response = $this->estoqueRepository->QuantidadeEstoqueBaixa();
+        $this->assertCount(0,$response->toArray());
+        $data = [
+            [
+                'quantidade' => 2,
+                'acao' => 'Adição'
+            ],
+            [
+                'quantidade' => 3,
+                'acao' => 'Adição'
+            ],
+            [
+                'quantidade' => 1,
+                'acao' => 'Remoção'
+            ],
+        ];
+        foreach($data as $value){
+            $newData = $this->data->merge($value)->toArray();
+            $this->createEstoque($newData);
         }
-
-        $this->assertTrue(isset($e));
+        $response = $this->estoqueRepository->QuantidadeEstoqueBaixa();
+        $adicao = $response->filter(fn($data) => $data->acao == 'Adição')->first();
+        $remocao = $response->filter(fn($data) => $data->acao == 'Remoção')->first();
+        $this->assertEquals(5,$adicao->total_somado);
+        $this->assertEquals(1,$remocao->total_somado);
     }
 
-    public function testSuccessRemove()
+    public function testRelatorio()
     {
-        $data = [3, 4, 8, 14];
-        foreach ($data as $dataValue) {
-            $oldEstoque = Estoque::first();
-
-            $newData = $this->data->merge([
-                'quantidade' => $dataValue,
-                'acao' => 'Adicao',
-                'produto_id' => $oldEstoque->produto_id
-            ])->toArray();
-
-            $response = $this->estoqueRepository->remove($newData);
-            $this->assertEquals($oldEstoque->quantidade - $dataValue, $response->quantidade);
+        $dataSearch = [
+            'start_date' => now()->subDay()->format('Y-m-d H:i:s'),
+            'end_date' => now()->format('Y-m-d H:i:s')
+        ];
+        $data = [
+            [
+                'quantidade' => 2,
+                'acao' => 'Adição'
+            ],
+            [
+                'quantidade' => 3,
+                'acao' => 'Adição'
+            ],
+            [
+                'quantidade' => 1,
+                'acao' => 'Remoção'
+            ],
+        ];
+        foreach($data as $value){
+            $newData = $this->data->merge($value)->toArray();
+            $this->createEstoque($newData);
         }
-    }
-
-    public function testErroTransactionRemoveMovimentacao()
-    {
-       $mock = $this->mockInterface->shouldReceive('add')
-            ->withAnyArgs()
-            ->andThrow(new ExceptionTest('Erro Provocado para Teste'))
-            ->getMock();
-        $this->estoqueRepository = new EstoqueRepository($mock);
-        
-        $newData = $this->data->merge([
-            'quantidade' => 2,
-            'acao' => 'Adicao',
-            'produto_id' => $this->estoque->first()->produto_id
-        ])->toArray();
-        try {
-            $this->estoqueRepository->add($newData);
-        } catch (ExceptionTest $e) {
-            $estoqueAtual = Estoque::first()->quantidade;
-            $this->assertEquals($estoqueAtual,$this->estoque->first()->quantidade);
+        $response = $this->estoqueRepository->relatorioMovimentos($dataSearch);
+        $fields = [
+            'id',
+            'quantidade',
+            'acao',
+            'origem',
+            'updated_at',
+            'nome',
+            'sku'
+        ];
+        foreach($response->toArray() as $responseData){
+            $this->assertIsObject($responseData);
+            $keysObject = array_keys(get_object_vars($responseData));
+            $this->assertArrayIntersect($fields,$keysObject);
         }
-
-        $this->assertTrue(isset($e));
-    }
-
-    public function testQuantidadeEstoque()
-    {
-        $this->runDatabaseMigrations();
-        $this->createEstoque(1, 90);
-        $response = $this->estoqueRepository->QuantidadeEstoque();
-        $this->assertCount(1,$response->all());
-        $this->assertEquals(90,$response->first()->total_estoque);
     }
 }

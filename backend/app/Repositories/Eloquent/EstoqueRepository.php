@@ -1,99 +1,138 @@
 <?php
 
-declare (strict_types = 1);
+declare(strict_types=1);
 
 namespace App\Repositories\Eloquent;
 
 use App\Models\Estoque;
-use App\Models\Movimentacao;
 use App\Repositories\Contracts\IEstoque;
-use App\Repositories\Contracts\IMovimentacao;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Collection as SupportCollection;
+use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Collection;
 
 class EstoqueRepository implements IEstoque
 {
 
-    public function __construct(
-        public IMovimentacao $iMovimentacao
-    )
+    private string $sqlEstoque = "SELECT 
+    table_estoque.*
+    FROM (
+        SELECT produtos.id, 
+        produtos.nome,
+        produtos.sku,
+        estoques.acao, 
+        sum(estoques.quantidade) as total_somado
+        FROM estoques
+        JOIN produtos ON estoques.produto_id = produtos.id
+        WHERE estoques.acao = 'Adição'
+        AND produtos.deleted_at IS NULL
+        GROUP BY produtos.id
+        UNION
+        SELECT produtos.id,
+        produtos.nome,
+        produtos.sku,
+        estoques.acao,
+        sum(estoques.quantidade) as total_somado
+        FROM estoques
+        JOIN produtos ON estoques.produto_id = produtos.id
+        WHERE estoques.acao = 'Remoção' 
+        AND produtos.deleted_at IS NULL
+        GROUP BY produtos.id
+    ) AS table_estoque
+    ORDER BY id";
+
+    public function findProduto(int $id_produto): ?Estoque
     {
+        return Estoque::where('produto_id', $id_produto)->first();
     }
 
-    public function findProduto(array $data): ?Estoque
+    public function persistence(Estoque $estoque): Estoque
     {
-        $estoque = Estoque::where('produto_id',$data['produto_id'])->first();
-        if($estoque == null)
-            return null;
+        $estoque->save();
+        $estoque->refresh();
         return $estoque;
     }
 
-    public function add(array $data): Estoque
+    public function paginate(int $page = 0, int $perPage = 15): Collection
     {
-        $self = $this;
-        return \DB::transaction(function() use ($self, $data){
-            $estoque = $self->findProduto($data);
-            if($estoque === null){
-                $estoque = Estoque::create([
-                    'produto_id' => $data['produto_id'],
-                    'quantidade' => $data['quantidade']
-                ]);
-            }else{
-                $estoque->quantidade += $data['quantidade'];
-                $estoque->save();
-            }            
-            $data['produto_id'] = $estoque->id;
-            $self->iMovimentacao->add($data);
-            return $estoque;
-        });
+        $queryData = \DB::select(
+            $this->sqlEstoque . " LIMIT ?,?",
+            [
+                $page,
+                $perPage
+            ]
+
+        );
+        $total = 0;
+        if (count($queryData)) {
+            $total = (int) Estoque::whereNotIn('produto_id', function (Builder $query) {
+                $query->select('id')
+                    ->from('produtos')
+                    ->whereNotNull('deleted_at')
+                    ->get();
+            })->groupBy('produto_id')
+                ->select('produto_id')
+                ->get()->count();
+        }
+
+
+        return new Collection([
+            'itens' => $queryData,
+            'total' => $total
+        ]);
     }
 
-    public function remove(array $data): Estoque
-    {
-        $self = $this;
-        return \DB::transaction(function() use ($self, $data){
-            $estoque = $self->findProduto($data);
-            if($estoque === null){
-                $estoque = Estoque::create([
-                    'produto_id' => $data['produto_id'],
-                    'quantidade' => $data['quantidade']
-                ]);
-            }else{
-                $estoque->quantidade - $data['quantidade'] <= 0 ? $estoque->quantidade = 0 : $estoque->quantidade -= $data['quantidade'];
-                $estoque->save();
-            }
-            $data['produto_id'] = $estoque->id;
-            $self->iMovimentacao->add($data);
-            return $estoque;
-        });
-    }
-
-    public function countQuantidade(int $idProduto): int
-    {
-        return (int)Estoque::where('produto_id',$idProduto)->sum('quantidade');
-    }
-
-    public function paginate(int $page = 1, int $perPage = 15): LengthAwarePaginator
-    {
-        return Estoque::paginate($perPage, page: $page);
-    }
-
-    public function QuantidadeEstoque(): SupportCollection
+    public function relatorioMovimentos(array $data): Collection
     {
         return \DB::table('estoques')
-            ->join('produtos','estoques.produto_id','=','produtos.id')
-            ->whereNull(['estoques.deleted_at','produtos.deleted_at'])
+            ->join('produtos', 'estoques.produto_id', '=', 'produtos.id')
+            ->whereBetween('estoques.updated_at', [
+                $data['start_date'],
+                $data['end_date']
+            ])
+            ->whereNull(['produtos.deleted_at'])
+            ->orderBy('estoques.updated_at')
             ->select([
                 'produtos.id',
-                'produtos.nome',
-                'produtos.sku',
-                \DB::raw('SUM(estoques.quantidade) as total_estoque')
-            ])
-            ->groupBy('produtos.id')
-            ->havingRaw('SUM(estoques.quantidade) < ?',[100])
-            ->get();
+                'estoques.quantidade',
+                'acao',
+                'origem',
+                'estoques.updated_at',
+                'nome',
+                'sku'
+            ])->get();
     }
 
+    public function countQuantidadeProduto(int $idProduto): int
+    {
+        $idProduto2 = $idProduto;
+        $total = \DB::select(
+            "SELECT IF(soma_adicao IS NULL, 0, soma_adicao) - IF(soma_remocao IS NULL, 0, soma_remocao) AS quantidade_total
+             FROM (
+                SELECT sum(estoques.quantidade) as soma_adicao
+                FROM estoques
+                JOIN produtos ON estoques.produto_id = produtos.id
+                WHERE estoques.acao = 'Adição'
+                AND produtos.deleted_at IS NULL
+                AND estoques.produto_id = ?
+            ) AS query_adicao,
+            (
+                SELECT sum(estoques.quantidade) as soma_remocao
+                FROM estoques
+                JOIN produtos ON estoques.produto_id = produtos.id
+                WHERE estoques.acao = 'Remoção'
+                AND produtos.deleted_at IS NULL
+                AND estoques.produto_id = ?
+            ) AS query_remocao",
+            [
+                $idProduto,
+                $idProduto2
+            ]
+        );
+        return (int)$total[0]->quantidade_total;
+    }
+
+    public function QuantidadeEstoqueBaixa(): Collection
+    {
+        $query = \DB::select($this->sqlEstoque);
+        return new Collection($query);
+    }
 }

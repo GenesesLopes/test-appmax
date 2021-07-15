@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateMovimentacoesTable extends Migration
+class CreateEstoquesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,10 +13,10 @@ class CreateMovimentacoesTable extends Migration
      */
     public function up()
     {
-        Schema::create('movimentacoes', function (Blueprint $table) {
+        Schema::create('estoques', function (Blueprint $table) {
             $table->id();
             $table->foreignId('produto_id')->constrained('produtos');
-            $table->integer('quantidade');
+            $table->unsignedInteger('quantidade')->default(0);
             $table->string('acao',45);
             $table->string('origem',45);
             $table->timestamps();
@@ -30,6 +30,6 @@ class CreateMovimentacoesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('movimentacoes');
+        Schema::dropIfExists('estoques');
     }
 }
