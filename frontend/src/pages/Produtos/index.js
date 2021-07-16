@@ -59,7 +59,9 @@ export default {
             }
         },
         adicionar(){
-            this.$root.$emit("open-modal",{})
+            this.$root.$emit("open-modal-estoque",{
+                acao: 'Adicionar'
+            })
             this.$bvModal.show('modal-produto')
         }
     },

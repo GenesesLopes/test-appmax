@@ -11,10 +11,7 @@ export default {
         else
             state.estoque_baixo = []
     },
-    SET_ESTOQUE(state, data = {
-        data: []
-    }) {
-        state.estoque = { ...state.estoque, ...data }
-
+    SET_ESTOQUE(state, data = []) {
+        state.estoque = data
     }
 }

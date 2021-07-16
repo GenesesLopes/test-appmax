@@ -12,16 +12,36 @@ export default {
             throw error
         }
     },
-    async estoque(context,dataSearch) {
+    async estoque(context) {
         try {
+
             context.commit("SET_ERROS_ESTOQUE")
-            context.commit("SET_ESTOQUE")
-            const { data } = await api.get('/estoque',{
-                params: {...dataSearch}
-            })
+            const { data } = await api.get('/estoque')
             context.commit("SET_ESTOQUE", data)
         } catch (error) {
             console.error(error.response)
+            throw error
+        }
+    },
+    async estoqueAdd(context, dataAdd) {
+        try {
+
+            context.commit("SET_ERROS_ESTOQUE")
+            const { data } = await api.post('/adicionar-produtos', dataAdd)
+            context.commit("SET_ESTOQUE", data)
+        } catch (error) {
+            console.error(error.response)
+            throw error
+        }
+    },
+    async estoqueBaixa(context, dataAdd) {
+        try {
+            context.commit("SET_ERROS_ESTOQUE")
+            const { data } = await api.put('/baixar-produtos', dataAdd)
+            context.commit("SET_ESTOQUE", data)
+        } catch (error) {
+            console.error(error.response)
+            throw error
         }
     }
 }

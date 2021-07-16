@@ -61,7 +61,7 @@
                                     aria-hidden="true"
                                     align-start
                                 ></b-icon>
-                                15 primeiros produtos do estoque
+                                Produtos do estoque
                             </b-card-header>
                             <b-collapse
                                 id="estoque-produtos"

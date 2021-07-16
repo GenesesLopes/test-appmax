@@ -48,7 +48,7 @@ export default {
     computed: {
         ...mapState({
             estoque_baixo: (state) => state.estoque.estoque_baixo,
-            estoque: (state) => state.estoque.estoque.data
+            estoque: (state) => state.estoque.estoque
         })
     }
 };

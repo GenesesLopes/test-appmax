@@ -3,10 +3,9 @@
         <b-navbar toggleable="sm" type="dark" variant="dark">
             <b-navbar-toggle target="nav-text-collapse"></b-navbar-toggle>
 
-            <router-link :to="{name: 'dashboard'}">
+            <router-link :to="{ name: 'dashboard' }">
                 <b-navbar-brand>Estoque App Max</b-navbar-brand>
             </router-link>
-            
 
             <b-collapse id="nav-text-collapse" is-nav>
                 <b-navbar-nav>
@@ -17,7 +16,7 @@
                         <template #button-content>
                             <em>Estoques</em>
                         </template>
-                        <b-dropdown-item href="#" @click.prevent="estoque"
+                        <b-dropdown-item href="#" @click.prevent="getEstoque"
                             >Listagem</b-dropdown-item
                         >
                         <b-dropdown-item href="#" @click.prevent="movimentacoes"
@@ -50,12 +49,14 @@ export default {
         },
         async produtos() {
             this.$router.push({
-                name: 'produtos'
-            })
+                name: "produtos"
+            });
         },
-        estoque() {
-            //   this.$bvModal.show("modal-usuario");
-            console.log("estoques");
+        async getEstoque() {
+            await await this.$store.dispatch("estoque");
+            this.$router.push({
+                name: "estoque"
+            });
         },
         async movimentacoes() {
             console.log("movimentações");
