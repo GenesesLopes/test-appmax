@@ -4,8 +4,8 @@ export default {
     async estoque_baixo(context) {
         try {
             context.commit("SET_ERROS_ESTOQUE")
-            context.commit("SET_ESTOQUE_BAIXO")
-            const { data } = await api.get('/estoque-baixo')
+            // context.commit("SET_ESTOQUE_BAIXO")
+            let { data } = await api.get('/estoque-baixo')
             context.commit("SET_ESTOQUE_BAIXO", data)
         } catch (error) {
             console.error(error.response)

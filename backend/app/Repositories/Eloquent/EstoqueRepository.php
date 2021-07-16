@@ -51,33 +51,12 @@ class EstoqueRepository implements IEstoque
         return $estoque;
     }
 
-    public function paginate(int $page = 0, int $perPage = 15): Collection
+    public function index(): Collection
     {
         $queryData = \DB::select(
-            $this->sqlEstoque . " LIMIT ?,?",
-            [
-                $page,
-                $perPage
-            ]
-
+            $this->sqlEstoque
         );
-        $total = 0;
-        if (count($queryData)) {
-            $total = (int) Estoque::whereNotIn('produto_id', function (Builder $query) {
-                $query->select('id')
-                    ->from('produtos')
-                    ->whereNotNull('deleted_at')
-                    ->get();
-            })->groupBy('produto_id')
-                ->select('produto_id')
-                ->get()->count();
-        }
-
-
-        return new Collection([
-            'itens' => $queryData,
-            'total' => $total
-        ]);
+        return new Collection($queryData);
     }
 
     public function relatorioMovimentos(array $data): Collection

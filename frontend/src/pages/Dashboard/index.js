@@ -31,7 +31,6 @@ export default {
                     try{
                         this.loading.estoque_produtos = true;
                         await this.$store.dispatch("estoque")
-                        console.log(this.estoque)
                     }
                     catch(error){
                         console.error(error)

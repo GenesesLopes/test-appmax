@@ -6,10 +6,7 @@ export default {
             state.errors = data
     },
     SET_ESTOQUE_BAIXO(state, data = []) {
-        if (data.length)
-            state.estoque_baixo = [...state.estoque_baixo, ...data]
-        else
-            state.estoque_baixo = []
+        state.estoque_baixo = data
     },
     SET_ESTOQUE(state, data = []) {
         state.estoque = data

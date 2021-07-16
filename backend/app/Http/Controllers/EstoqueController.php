@@ -16,10 +16,9 @@ class EstoqueController extends Controller
     ) {
     }
 
-    public function index(EstoqueRequest $request)
+    public function index()
     {
-        return $this->estoqueServices->listagem($request->query('page', 1),$request->query('per_page',15));
-        // return $this->estoqueRepository->paginate($page, $perPage);
+        return $this->estoqueServices->listagem();
     }
 
     public function store(EstoqueRequest $request)

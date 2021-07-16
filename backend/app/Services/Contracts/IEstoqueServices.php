@@ -5,6 +5,7 @@ namespace App\Services\Contracts;
 
 use App\Models\Estoque;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
 
 interface IEstoqueServices
 {
@@ -12,7 +13,7 @@ interface IEstoqueServices
 
     public function relatorio(array $data): array;
 
-    public function listagem(int $page, int $perPage = 15): LengthAwarePaginator;
+    public function listagem(): Collection;
 
     public function quantidadeBaixa();
 }
