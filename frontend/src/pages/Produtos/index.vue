@@ -78,6 +78,7 @@
                 />
             </template>
         </b-card>
+        <form-produto />
     </Base>
 </template>
 <script src="./index.js" />

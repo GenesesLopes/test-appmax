@@ -1,20 +1,16 @@
 import Base from "../../components/Base/index.vue";
+import FormProduto from '../../components/Produtos/form.vue'
 import { mapState } from 'vuex'
 export default {
     components: {
-        Base
+        Base,
+        FormProduto
     },
     data () {
       return {
         isBusy: false,
         perPage: 15,
         currentPage: 1,
-        optionsPage: [
-            1,
-            10,
-            15,
-            30
-        ]
       }
     },
     methods: {
@@ -42,13 +38,29 @@ export default {
             }
         },
         editar(data){
-            console.log(data)
+            this.$root.$emit("open-modal",data)
+            this.$bvModal.show('modal-produto')
         },
-        excluir(data){
-            console.log(data)
+        async excluir(data){
+            try {
+                await this.$store.dispatch('deleteProduto',data.id)
+                this.$root.$emit('bv::refresh::table', 'tabela_produtos')
+                this.$bvToast.toast("Operação realizada com sucesso!", {
+                    title: "Sucesso!",
+                    variant: "success",
+                    solid: true
+                });
+            } catch (error) {
+                this.$bvToast.toast("Erro ao efetivar a operação", {
+                    title: "Error!",
+                    variant: "danger",
+                    solid: true
+                });
+            }
         },
         adicionar(){
-            console.log('add')
+            this.$root.$emit("open-modal",{})
+            this.$bvModal.show('modal-produto')
         }
     },
     computed: {

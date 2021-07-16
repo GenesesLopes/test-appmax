@@ -11,7 +11,7 @@ export default {
         } catch (error) {
             let { response } = error;
             if (response !== undefined) {
-                context.commit("SET_ERROR_PRODUTO", [response.data]);
+                context.commit("SET_ERROS_PRODUTOS", response.data);
             }
             console.error(error);
             throw error;
@@ -25,7 +25,7 @@ export default {
         } catch (error) {
             let { response } = error;
             if (response !== undefined) {
-                context.commit("SET_ERROR_PRODUTO", [response.data]);
+                context.commit("SET_ERROS_PRODUTOS", response.data);
             }
             console.error(error);
             throw error;
@@ -39,7 +39,7 @@ export default {
         } catch (error) {
             let { response } = error;
             if (response !== undefined) {
-                context.commit("SET_ERROR_PRODUTO", [response.data]);
+                context.commit("SET_ERROS_PRODUTOS", response.data);
             }
             console.error(error);
             throw error;
@@ -54,13 +54,13 @@ export default {
         } catch (error) {
             let { response } = error;
             if (response !== undefined) {
-                context.commit("SET_ERROR_PRODUTO", [response.data]);
+                context.commit("SET_ERROS_PRODUTOS", response.data);
             }
             console.error(error);
             throw error;
         }
     },
-    async updateDestroy(context, id) {
+    async deleteProduto(context, id) {
         try {
             context.commit('SET_DATA_PRODUTOS')
             const { data } = await api.delete(`/produto/${id}`)
@@ -68,7 +68,7 @@ export default {
         } catch (error) {
             let { response } = error;
             if (response !== undefined) {
-                context.commit("SET_ERROR_PRODUTO", [response.data]);
+                context.commit("SET_ERROS_PRODUTOS", response.data);
             }
             console.error(error);
             throw error;
