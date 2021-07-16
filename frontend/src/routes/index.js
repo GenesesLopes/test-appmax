@@ -5,6 +5,7 @@ import Middleware from "../middleware";
 
 import Login from "../pages/Login/index.vue";
 import Dashboard from "../pages/Dashboard/index.vue"
+import Produtos from '../pages/Produtos/index.vue';
 // import Graficos from "../components/graficos";
 // import Usuarios from "../components/usuario";
 
@@ -20,6 +21,11 @@ const routes = [
     name: "dashboard",
     path: "/admin",
     component: Dashboard,
+  },
+  {
+    name: "produtos",
+    path: "/admin/produtos",
+    component: Produtos,
   },
 ];
 const router = new Router({

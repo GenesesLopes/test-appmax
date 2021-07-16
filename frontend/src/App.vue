@@ -1,15 +1,15 @@
 <template>
-  <div id="app">
-    <transition name="fade">
-      <router-view />
-    </transition>
-  </div>
+    <div id="app">
+        <transition name="fade">
+            <keep-alive>
+                <router-view />
+            </keep-alive>
+        </transition>
+    </div>
 </template>
 
 <script>
 export default {
-  name: 'App Max',
-  
-}
+    name: "App Max"
+};
 </script>
-
