@@ -1,6 +1,7 @@
 <template>
     <div>
         <Base>
+            <h1>asdas</h1>
         </Base>
     </div>
 </template>

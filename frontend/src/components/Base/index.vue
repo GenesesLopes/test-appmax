@@ -1,6 +1,9 @@
 <template>
     <div>
         <navbar />
+        <b-container fluid>
+            <slot />
+        </b-container>
     </div>
 </template>
 <script>
