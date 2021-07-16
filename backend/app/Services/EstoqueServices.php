@@ -69,8 +69,6 @@ class EstoqueServices implements IEstoqueServices
     public function listagem(): Collection
     {
 
-
-       
         $queryData = $this->iEstoque->index();
         // dump($queryData);
         $response = collect($queryData)->reduce(function ($data, $queryData) {                
