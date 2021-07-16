@@ -67,5 +67,9 @@ docker-compose up -d
 ```
 - Containers disponiveis; `api-appmax`, `nginx-appmax` e `db-appmax`.
 
+Para logar no sistema, utilize as credencias já pre-cadastradas
+* email: usuario@email.com
+* senha: usuario
+
 Caso utilize VSCode, você terá a opção de subir todo o ambiente de desenvolvimento utilizando o plugin 
 <a href="https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers">Remote Container</a>. mas vale lembrar que é orbigatório o uso do docker.
