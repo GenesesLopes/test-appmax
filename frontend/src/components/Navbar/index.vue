@@ -18,7 +18,7 @@
                             <em>Estoques</em>
                         </template>
                         <b-dropdown-item href="#" @click.prevent="estoque"
-                            >Produtos</b-dropdown-item
+                            >Listagem</b-dropdown-item
                         >
                         <b-dropdown-item href="#" @click.prevent="movimentacoes"
                             >Historico de movimentações</b-dropdown-item

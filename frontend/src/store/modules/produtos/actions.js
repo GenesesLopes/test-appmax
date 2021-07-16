@@ -4,6 +4,7 @@ export default {
     async listProduto(context, dataSearh) {
         try {
             context.commit('SET_DATA_PRODUTOS')
+            context.commit('SET_ERROS_PRODUTOS')
             const { data } = await api.get('/produto', {
                 params: { ...dataSearh }
             })
@@ -34,6 +35,7 @@ export default {
     async createProduto(context, dataCreate) {
         try {
             context.commit('SET_DATA_PRODUTOS')
+            context.commit('SET_ERROS_PRODUTOS')
             const { data } = await api.post('/produto', dataCreate)
             context.commit('SET_DATA_PRODUTOS', data)
         } catch (error) {
@@ -48,6 +50,7 @@ export default {
     async updateProduto(context, dataUpdate) {
         try {
             context.commit('SET_DATA_PRODUTOS')
+            context.commit('SET_ERROS_PRODUTOS')
             let { id } = dataUpdate;
             const { data } = await api.put(`/produto/${id}`, dataUpdate)
             context.commit('SET_DATA_PRODUTOS', data)
@@ -63,6 +66,7 @@ export default {
     async deleteProduto(context, id) {
         try {
             context.commit('SET_DATA_PRODUTOS')
+            context.commit('SET_ERROS_PRODUTOS')
             const { data } = await api.delete(`/produto/${id}`)
             context.commit('SET_DATA_PRODUTOS', data)
         } catch (error) {

@@ -32,10 +32,10 @@ export default {
 
                 try {
                     this.loading = true;
-                    if (this.form.id === null) {
+                    if (this.form.id === null || this.form.id === undefined) {
                         delete this.form.id;
                         await this.$store.dispatch("createProduto", this.form);
-                    }else{
+                    } else {
                         await this.$store.dispatch("updateProduto", this.form);
                     }
                     this.$bvModal.hide('modal-produto');
@@ -47,8 +47,6 @@ export default {
                     });
 
                 } catch (error) {
-                    console.error(error);
-                } finally {
                     if (this.errors != {}) {
                         for (let value in this.errors) {
                             if (Array.isArray(this.errors[value])) {
@@ -68,6 +66,7 @@ export default {
                             }
                         }
                     }
+                } finally {
                     this.loading = false;
                 }
             }
