@@ -13,7 +13,7 @@ interface IEstoque
     public function persistence(Estoque $estoque): Estoque;
     public function findProduto(int $id_produto): ?Estoque;
     public function countQuantidadeProduto(int $idProduto): int;
-    public function paginate(int $page = 1, int $perPage = 15): Collection;
+    public function index(): Collection;
     public function QuantidadeEstoqueBaixa(): Collection;
     public function relatorioMovimentos(array $data): Collection;
 }

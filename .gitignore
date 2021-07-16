@@ -16,3 +16,5 @@
 yarn.lock
 .yarn
 .local
+.npm
+.vuerc

@@ -66,19 +66,18 @@ class EstoqueServices implements IEstoqueServices
         return $dataReturn;
     }
 
-    public function listagem(int $page, int $perPage = 15): LengthAwarePaginator
+    public function listagem(): Collection
     {
-        $page <= 0
-            ? $page = 0
-            : $page--;
-        $queryData = $this->iEstoque->paginate($page * $perPage, $perPage);
-        $response = collect($queryData->get('itens'))->reduce(function ($data, $queryData) {
-            $key = collect($data['itens'])->map(function ($value, $key) use ($queryData) {
+
+        $queryData = $this->iEstoque->index();
+        // dump($queryData);
+        $response = collect($queryData)->reduce(function ($data, $queryData) {                
+            $key = collect($data)->map(function ($value, $key) use ($queryData) {
                 if ($value['id'] == $queryData->id)
                     return $key;
             })->whereNotNull()->first();
             if (is_null($key)) {
-                array_push($data['itens'], [
+                array_push($data, [
                     'id' => $queryData->id,
                     'nome' => $queryData->nome,
                     'sku' => $queryData->sku,
@@ -86,23 +85,16 @@ class EstoqueServices implements IEstoqueServices
                 ]);
             } else {
                 $queryData->acao == 'Adição'
-                    ? $data['itens'][$key]['total_estoque'] += (int)$queryData->total_somado
-                    : $data['itens'][$key]['total_estoque'] -= (int) $queryData->total_somado;
+                    ? $data[$key]['total_estoque'] += (int)$queryData->total_somado
+                    : $data[$key]['total_estoque'] -= (int) $queryData->total_somado;
             }
             return $data;
-        }, [
-            'itens' => []
-        ]);
-        $queryData = $queryData->merge([
-            'itens' => $response['itens']
-        ]);
-       return new LengthAwarePaginator(
-            $queryData->get('itens'),
-            $queryData->get('total'),
-            $perPage,
-            $page + 1,
-            ['path' => route('estoque.index')]
-        );
+        }, []);
+        // $queryData = $queryData->merge([
+        //     'itens' => $response['itens']
+        // ]);
+
+        return collect($response);
     }
 
     public function quantidadeBaixa()
@@ -127,6 +119,10 @@ class EstoqueServices implements IEstoqueServices
             }
             return $data;
         }, []);
-        return collect($response)->filter(fn($value) => $value['total_estoque'] < 100);
+        return collect($response)->filter(fn ($value) => $value['total_estoque'] < 100)
+        ->reduce(function($dataValue,$values){
+            array_push($dataValue,$values);
+            return $dataValue;
+        },[]);
     }
 }

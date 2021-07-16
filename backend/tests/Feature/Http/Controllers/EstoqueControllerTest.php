@@ -49,27 +49,6 @@ class EstoqueControllerTest extends TestCase
         ]);
     }
 
-    public function testListIndex()
-    {
-        $this->createEstoque(30);
-        $response = $this->json('GET', route('estoque.index'));
-        $response->assertStatus(200)
-            ->assertJsonStructure([
-                'data' => [
-                    '*' => $this->fieldSerialized
-                ],
-                'links' => []
-            ]);
-
-        $response = $this->json('get', route('estoque.index', [
-            'page' => 2,
-            'per_page' => 10
-        ]));
-        $response->assertStatus(200)
-            ->assertJsonCount(10, 'data');
-
-        $this->assertEquals($response->json('current_page'), 2);
-    }
 
     public function testSuccessAdd()
     {
