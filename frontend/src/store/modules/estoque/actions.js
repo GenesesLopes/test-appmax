@@ -43,5 +43,17 @@ export default {
             console.error(error.response)
             throw error
         }
+    },
+
+    async relatorio(context, dataAdd) {
+
+        context.commit("SET_ERROS_ESTOQUE")
+        const { data } = await api.get('/relatorio', {
+            params: { ...dataAdd }
+        })
+        
+        context.commit("SET_RELATORIO", data)
+
     }
+
 }

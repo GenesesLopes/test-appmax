@@ -10,5 +10,8 @@ export default {
     },
     SET_ESTOQUE(state, data = []) {
         state.estoque = data
+    },
+    SET_RELATORIO(state, data = []) {
+        state.relatorio = data
     }
 }

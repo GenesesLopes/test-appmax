@@ -7,6 +7,7 @@ import Login from "../pages/Login/index.vue";
 import Dashboard from "../pages/Dashboard/index.vue"
 import Produtos from '../pages/Produtos/index.vue';
 import Estoque from '../pages/Estoque/index.vue';
+import Movimentacoes from '../pages/Movimentacoes/index.vue'
 
 Vue.use(Router);
 
@@ -31,6 +32,12 @@ const routes = [
     path: "/admin/estoque",
     component: Estoque,
   },
+  {
+    name: "movimentacoes",
+    path: "/admin/movimentacoes",
+    component: Movimentacoes,
+  },
+  
 ];
 const router = new Router({
   mode: "history",
@@ -41,7 +48,6 @@ router.beforeEach((to, from, next) => {
   if (!Middleware() && to.name !== "login") {
     next({ name: "login" });
   } else if (Middleware() && to.name === "login") {
-    console.log('asdw')
     next({
       name: "dashboard",
     });

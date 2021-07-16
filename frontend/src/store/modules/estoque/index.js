@@ -5,7 +5,8 @@ export default {
     state: {
         errors:[],
         estoque_baixo: [],
-        estoque: []
+        estoque: [],
+        relatorio: []
     },
     actions,
     mutations

@@ -19,7 +19,7 @@ api.interceptors.response.use(
     (error) => {
         if (error.response.status === 401) {
             if (error.response.config.url !== '/auth/login') {
-                alert(error.response.data);
+                alert("Sessão expirada!");
                 localStorage.removeItem("token");
                 window.location = "/";
             }

@@ -59,9 +59,10 @@ export default {
             });
         },
         async movimentacoes() {
-            console.log("movimentações");
-            //   await this.$store.dispatch("getHistorico");
-            //   this.$bvModal.show("modal-historico");
+            
+            this.$router.push({
+                name: "movimentacoes"
+            });
         }
     }
 };
